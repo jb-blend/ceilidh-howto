@@ -7,5 +7,5 @@ window.CEILIDH_CONFIG = {
   bpm: 136, // REPLACE with your recording's true BPM.
   // To publish scores via GitHub Issues, set publicRepo to "OWNER/REPO".
   // Example: 'your-team/the-ceilidh-incident'. Leave empty for local-only scores.
-  publicRepo: 'jb-blend/ceilidh-howto',
+  leaderboardApi: 'https://ceilidh-leaderboard.jake-barrett.workers.dev',
 };
