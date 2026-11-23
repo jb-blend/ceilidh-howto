@@ -1,15 +1,12 @@
-name: Publish game and shared leaderboard
+name: Publish Ceilidh Incident
 
 on:
   push:
     branches: [main]
-  issues:
-    types: [opened, edited, reopened, closed, deleted]
   workflow_dispatch:
 
 permissions:
   contents: read
-  issues: read
   pages: write
   id-token: write
 
@@ -19,28 +16,17 @@ concurrency:
 
 jobs:
   build:
-    name: Build and upload game site
+    name: Upload game site
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the game
+      - name: Checkout game
         uses: actions/checkout@v4
-
-      - name: Build leaderboard from score Issues
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: python3 scripts/build_leaderboard.py
-
-      - name: Confirm website files exist
+      - name: Check game assets
         run: |
           test -f site/index.html
           test -f site/settings.js
-          test -f site/leaderboard.json
-          echo "Website files are ready to upload"
-
-      - name: Configure GitHub Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
-
       - name: Upload game site
         uses: actions/upload-pages-artifact@v4
         with:
