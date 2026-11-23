@@ -1,0 +1,42 @@
+name: Publish game and shared leaderboard
+
+on:
+  push:
+    branches: [main]
+  issues:
+    types: [opened, edited, reopened, closed, deleted]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Checkout the game
+        uses: actions/checkout@v4
+      - name: Build leaderboard from score Issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 scripts/build_leaderboard.py
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload game site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Publish to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
