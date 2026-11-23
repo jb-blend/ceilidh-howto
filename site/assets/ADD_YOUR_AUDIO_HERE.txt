@@ -1,0 +1,6 @@
+Place your chosen audio file here as:
+  ceilidh-track.mp3
+
+Then open ../settings.js and replace bpm: 120 with your track's actual BPM.
+The bundled track should start on a strong downbeat (no long lead-in/silence).
+Use music you have permission to share publicly. If absent, the built-in jig plays.

@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<title>THE CEILIDH INCIDENT v0.7 — 12 DAIys of Christmas</title>
+<style>
+:root{color-scheme:dark;--ink:#f4f1e9;--muted:#b7b9c9;--dim:#7f8ba6;--bg:#080e20;--glass:#0f1a2bdc;--line:#ffffff2b;--gold:#ffd47c;--mint:#91e8be;--rose:#ff8e98;--purple:#b2a2fb}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #ffdfa0;outline-offset:3px}
+#game{position:relative;width:100vw;height:100dvh;background:radial-gradient(circle at 50% 30%,#28334f,#070d18 75%);overflow:hidden;touch-action:none}
+#game>canvas.webgl{display:block;width:100%;height:100%;touch-action:none}
+#ambient{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#050b1a91 0%,transparent 22%,transparent 78%,#050b1a91 100%),linear-gradient(0deg,#050b1b70 0%,transparent 42%);z-index:1}
+#hud{position:absolute;inset:0;pointer-events:none;z-index:4}
+.brand{position:absolute;left:22px;top:18px;max-width:32vw}.eyebrow{font-size:11px;font-weight:900;letter-spacing:.23em;color:var(--gold)}.logo{font-size:clamp(20px,2.6vw,38px);line-height:1;letter-spacing:-.057em;font-weight:950;margin-top:5px}.sublogo{margin-top:5px;font-size:11px;font-weight:750;color:#cccfdf;letter-spacing:.09em}
+.scoreBlock{position:absolute;left:50%;transform:translateX(-50%);top:16px;display:flex;gap:8px;align-items:stretch}
+.pill{background:#101b2de8;border:1px solid #ffffff28;box-shadow:0 8px 32px #0207147c;border-radius:13px;padding:9px 15px;min-width:96px;text-align:center;backdrop-filter:blur(12px)}.kicker{font-size:9px;font-weight:900;letter-spacing:.16em;color:#afbbcf}.value{font-size:24px;font-weight:950;line-height:1.25;font-variant-numeric:tabular-nums}.score{color:#ffe09c}.combo{color:#a8f2d4}.beat{color:#b7b6ff}
+#objective{position:absolute;top:100px;left:50%;transform:translateX(-50%);min-width:min(500px,56vw);text-align:center;background:#10182bde;border:1px solid #ffffff38;border-radius:15px;padding:12px 22px 13px;box-shadow:0 8px 27px #02051370}.objK{font-size:10px;color:var(--gold);letter-spacing:.16em;font-weight:900}.objTitle{font-size:clamp(14px,1.8vw,22px);font-weight:900;line-height:1.18;margin-top:3px}.objDesc{font-size:11px;color:#d2d8e8;line-height:1.4;margin-top:3px}
+#rhs{position:absolute;right:20px;top:18px;display:flex;flex-direction:column;gap:10px;width:190px}.infoBox{background:#10182bdc;border:1px solid #ffffff30;border-radius:12px;padding:11px 13px;backdrop-filter:blur(9px)}.infoTitle{font-size:10px;color:#f9d59c;letter-spacing:.14em;font-weight:900}.infoValue{font-weight:850;font-size:14px;margin-top:4px}.smallText{font-size:10px;color:#bdc6dc;margin-top:4px;line-height:1.42}#chaseBar{width:100%;height:8px;border-radius:20px;background:#ffffff23;overflow:hidden;margin-top:8px}#chaseFill{height:100%;background:linear-gradient(90deg,#8fe2b9,#ffd17d,#ff7b8a);width:12%;border-radius:20px;transition:width .15s}
+#map{display:block;margin:8px auto 0;width:138px;height:140px;border-radius:8px;background:#091325d9;border:1px solid #ffffff1c}
+#status{position:absolute;left:22px;top:159px;width:190px;background:#10182bd3;border:1px solid #ffffff28;border-radius:12px;padding:10px 12px;font-size:11px;line-height:1.5;color:#c9d4e6}.statusMain{color:#f1dcae;font-weight:850;font-size:12px}.statusKey{color:#91e8be}
+#feedback{position:absolute;left:50%;top:34%;transform:translateX(-50%) scale(.94);font-size:clamp(24px,4vw,60px);font-weight:1000;font-style:italic;letter-spacing:-.055em;color:#fff3c6;text-shadow:0 3px 6px #121932,0 0 37px #ffeeb289;opacity:0;transition:opacity .16s,transform .16s;white-space:nowrap}.shown{opacity:1!important;transform:translateX(-50%) scale(1)!important}#feedback.bad{color:#ff9fab;text-shadow:0 4px 16px #ff234660}
+#reticle{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);width:24px;height:24px;border:2px solid #f1f3eb9e;border-radius:50%;box-shadow:0 0 0 1px #03102876,0 0 18px #b5efcc80;opacity:.8}#reticle:before,#reticle:after{content:"";position:absolute;background:#f6f1deaa}#reticle:before{width:12px;height:1px;left:4px;top:10px}#reticle:after{height:12px;width:1px;left:10px;top:4px}
+#footControls{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:22px;align-items:center;pointer-events:auto}
+.controlGroup{display:flex;gap:7px;align-items:center}.stack{display:flex;flex-direction:column;gap:5px;align-items:center}.grouptitle{font-size:10px;font-weight:900;letter-spacing:.16em;color:#f2dcb0;text-shadow:0 2px 4px #091027}
+.control{user-select:none;touch-action:none;border:1px solid #ffffff55;background:#19243dda;box-shadow:0 8px 27px #070b19b8,inset 0 1px #ffffff30;color:#f8f6ee;border-radius:15px;font-size:13px;font-weight:900;min-width:100px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;backdrop-filter:blur(9px)}.control strong{font-size:14px}.control span{font-size:10px;font-weight:800;color:#aab7c9}.control.foot{background:#2a2942ea;border-color:#a99bd260}.control.arm{background:#1e3d42e8;border-color:#92e3ca67}.control.selected{background:#73e0b1;color:#102331;transform:translateY(2px);box-shadow:0 2px 8px #63e4b748}.control.selected span{color:#28534a}.control.pressed{transform:translateY(3px);filter:brightness(1.55)}
+.steer{min-width:50px;width:54px;background:#1b2736bc}.steer strong{font-size:22px}
+#figureCycle{position:absolute;top:200px;left:50%;transform:translateX(-50%);display:none;gap:5px;padding:5px;background:#10192be5;border:1px solid #ffffff2b;border-radius:12px;pointer-events:none;box-shadow:0 5px 20px #07091588;max-width:min(770px,78vw)}
+.figurePhase{padding:7px 10px;font-size:10px;font-weight:900;color:#b7c1d4;white-space:nowrap;border:1px solid transparent;border-radius:8px;letter-spacing:.02em}
+.figurePhase.current{background:#ffe3a8;color:#142139;border-color:#ffd17a;box-shadow:0 0 18px #ffe1a44c}
+.figurePhase.done{color:#9ce7b9}
+#countdownPrompt{position:absolute;left:50%;top:66%;transform:translateX(-50%);z-index:9;display:none;font-size:clamp(13px,2vw,23px);font-weight:950;letter-spacing:.08em;white-space:nowrap;color:#d7f9e2;text-shadow:0 4px 22px #050713}
+#beatRail{position:absolute;bottom:103px;left:50%;transform:translateX(-50%);width:min(610px,58vw);height:17px;display:flex;gap:5px;justify-content:center;align-items:center}.beatDot{height:10px;width:10px;border:2px solid #ffffff70;border-radius:50%;background:#172138;transition:background .06s}.beatDot.active{background:#ffe2a5;box-shadow:0 0 14px #ffe2a5}.beatDot.good{background:#81eabf}#timingText{position:absolute;left:50%;bottom:125px;transform:translateX(-50%);font-size:11px;font-weight:850;letter-spacing:.15em;color:#eae0cf;text-shadow:0 2px 8px #020713}
+#toolbar{position:absolute;left:18px;bottom:17px;display:flex;gap:7px;pointer-events:auto;align-items:center}#musicName{max-width:138px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#b6eece;background:#0a192abf;padding:8px;border-radius:8px}#trackBpm{background:#111c31;border:1px solid #ffffff55;border-radius:8px;color:#fff;padding:7px;width:74px;font:inherit}#pickTrack{background:#173b3b;color:#e7ffee;border:1px solid #6bcc9c;cursor:pointer;border-radius:8px;padding:9px 12px;font:inherit;font-weight:800}.musicInfo{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.musicInfo small{font-size:11px;color:#d2d9e7}.tool{background:#121c30db;border:1px solid #ffffff3b;border-radius:10px;color:#dde4f0;padding:10px 11px;font-size:11px;font-weight:800}
+#banner{position:absolute;bottom:99px;right:20px;padding:9px 12px;background:#111d2fd8;border:1px solid #ffffff32;border-radius:11px;max-width:220px;text-align:right;font-size:11px;line-height:1.4;color:#cdd5e8}
+#overlay{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#060b15ed,#151830e8);backdrop-filter:blur(5px);padding:20px;overflow-y:auto}#overlay.hidden{display:none}
+.modal{position:relative;border:1px solid #ffffff32;background:linear-gradient(158deg,#1f2a3d,#10192b 68%,#11152b);padding:30px;border-radius:23px;width:min(620px,98vw);box-shadow:0 28px 100px #0008;max-height:calc(100vh - 40px);overflow-y:auto}
+.modal:before{content:"";position:absolute;right:0;top:0;height:5px;width:100%;background:linear-gradient(90deg,#f7b68d,#ffdd85,#90e9b1,#b7a5ff);border-radius:23px 23px 0 0}
+.modal h1{font-size:clamp(30px,5.2vw,55px);line-height:1.04;letter-spacing:-.06em;margin:9px 0 14px}.modal p{font-size:14px;color:#cdd5e4;line-height:1.62;margin:11px 0}.highlight{color:#ffdc96}.ruleGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:17px 0}.rule{border:1px solid #ffffff28;border-radius:10px;padding:11px;background:#ffffff0a;font-size:12px;line-height:1.4}.rule b{color:#a8e7c7;display:block;margin-bottom:4px}.cta{background:var(--gold);color:#182132;font-weight:950;font-size:16px;border:0;padding:15px 22px;border-radius:12px;width:100%;box-shadow:0 10px 30px #ffc26435}.cta:hover{filter:brightness(1.11)}.optionLine{display:flex;gap:12px;align-items:center;justify-content:space-between;font-size:12px;color:#b7c7da;margin:14px 0}.optionLine label{display:flex;align-items:center;gap:8px;cursor:pointer}.optionLine input{accent-color:var(--gold)}
+.endStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:19px 0}.endStat{background:#ffffff0a;border:1px solid #ffffff1f;border-radius:12px;padding:12px;text-align:center}.endStat b{display:block;font-size:24px;color:var(--gold)}.endStat span{font-size:10px;color:#c2d1e1}
+#bigCountdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:8;pointer-events:none;font-size:min(24vw,250px);font-weight:1000;color:#ffdda0;text-shadow:0 8px 50px #01081a,0 0 100px #ffc77370}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6}#fade{position:absolute;inset:0;background:#0a0713;opacity:0;pointer-events:none;z-index:7}
+#loadError{position:absolute;inset:0;z-index:15;background:#0b1425;color:#f9f0df;display:none;align-items:center;justify-content:center;text-align:center;padding:25px}
+.dpad{display:grid;grid-template-columns:repeat(3,49px);grid-template-rows:repeat(2,49px);column-gap:4px;row-gap:4px;align-items:center;justify-items:center}.dpad .move{width:49px;min-width:49px;height:49px;border-radius:13px;background:#272844e8;border-color:#b4b4ed72;font-size:27px;font-weight:950}.dpad #moveUp{grid-column:2;grid-row:1}.dpad #moveLeft{grid-column:1;grid-row:2}.dpad #moveDown{grid-column:2;grid-row:2}.dpad #moveRight{grid-column:3;grid-row:2}
+#spinHud{position:absolute;left:50%;bottom:163px;transform:translateX(-50%);width:min(450px,48vw);display:none;align-items:center;gap:9px;padding:9px 12px;background:#0b1930dc;border:1px solid #ffffff38;border-radius:12px;pointer-events:none;font-size:10px;font-weight:900;letter-spacing:.04em;color:#e6f5eb}#spinLabel{white-space:nowrap}#spinTrack{height:11px;flex:1;position:relative;border-radius:30px;background:#293149;overflow:hidden}#spinFill{width:0;height:100%;background:linear-gradient(90deg,#84e5c7,#fbd587,#fd748a);border-radius:30px}#spinDanger{position:absolute;left:67%;width:2px;height:100%;background:#fff;opacity:.8}#spinValue{white-space:nowrap;color:#ffdb9c}#targetBeacon{position:absolute;z-index:5;top:44%;left:50%;transform:translate(-50%,-50%);pointer-events:none;padding:8px 13px;border:2px solid #a1ffb2;color:#eaffec;background:#075b38e8;border-radius:13px;font-weight:950;font-size:14px;text-align:center;letter-spacing:.04em;box-shadow:0 4px 30px #42ff9a60,0 0 0 3px #051c159c;white-space:nowrap;transition:opacity .15s;opacity:0}
+#targetBeacon.line{border-color:#ffe49e;color:#fff6d8;background:#6b4921eb;box-shadow:0 4px 24px #ffc86e70,0 0 0 3px #231b0e9c}
+@media(max-width:900px){.dpad{grid-template-columns:repeat(3,39px);grid-template-rows:repeat(2,39px)}.dpad .move{min-width:39px;width:39px;height:39px;font-size:22px}.dpad{column-gap:2px;row-gap:2px}#footControls{gap:8px}}
+
+@media(max-width:900px){.brand{max-width:33vw}.logo{font-size:24px}.sublogo{display:none}#rhs{right:10px;top:12px;width:132px}.infoBox{padding:8px}.infoValue{font-size:12px}#map{width:110px;height:120px}#status{top:134px;left:10px;width:144px;padding:8px;font-size:10px}#objective{top:78px;min-width:43vw;max-width:48vw;padding:8px}.objDesc{font-size:10px}#footControls{gap:7px;bottom:13px}.control{min-width:69px;height:55px;font-size:11px}.control strong{font-size:12px}.steer{min-width:39px;width:39px}.grouptitle{font-size:8px}#figureCycle{top:206px;max-width:62vw}.figurePhase{padding:6px 7px;font-size:8px}#beatRail{bottom:85px}#timingText{bottom:109px}.scoreBlock{top:13px;gap:4px}.pill{padding:7px;min-width:58px}.value{font-size:17px}.kicker{font-size:8px}#toolbar{left:8px;bottom:9px;flex-direction:column}#banner{bottom:90px;right:9px;max-width:148px;font-size:9px}}
+@media(max-width:600px){.brand{top:8px;left:8px}.eyebrow{font-size:8px}.logo{font-size:18px}.scoreBlock{top:49px}.pill{min-width:62px;padding:5px 8px}#rhs{top:7px}#rhs .infoBox:nth-child(2){display:none}#status{top:152px}.objTitle{font-size:14px}#objective{top:110px;left:60%;min-width:48vw}#footControls{bottom:11px;gap:5px;max-width:100%}.control{min-width:58px;height:53px;border-radius:10px;padding:2px}.control span{font-size:9px}.control strong{font-size:11px}.control.steer{min-width:28px;width:32px}.steer strong{font-size:18px}.controlGroup{gap:4px}#figureCycle{top:207px;left:61%;max-width:72vw;gap:2px;padding:3px}.figurePhase{padding:5px 4px;font-size:7px}#beatRail{bottom:79px}#timingText{bottom:100px}#toolbar{left:5px;bottom:90px;flex-direction:row}.tool{padding:7px;font-size:9px}#banner{display:none}.modal{padding:20px}.ruleGrid{gap:6px}.rule{padding:8px;font-size:11px}}
+.lbList{max-height:236px;overflow-y:auto;border:1px solid #ffffff2a;border-radius:11px;margin-top:8px}.lbRow{display:grid;grid-template-columns:46px 1fr 58px 90px;align-items:center;gap:7px;padding:9px 11px;border-bottom:1px solid #ffffff1a;font-size:12px}.lbRow:nth-child(odd){background:#ffffff0a}.lbRow span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lbHeading{font-size:9px;font-weight:900;color:#b9c8db;letter-spacing:.07em}.lbNote{font-size:11px;color:#a7d9cb!important}.lbForm{background:#0c1e31;border:1px solid #ffffff35;border-radius:13px;padding:14px;margin:14px 0}.lbForm h3{margin:0;font-size:17px}.lbFields{display:flex;gap:8px;margin:12px 0}.lbFields input{flex:1;min-width:0;background:#f5f2e8;color:#102035;border-radius:9px;padding:10px;border:0;font-size:14px}.lbFields button{background:#a8eac6;color:#162331;border:0;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:900}.lbFields button:disabled{opacity:.5}.lbSecondary{background:#192940;border:1px solid #7a8eac6c;color:#e5f7ee;border-radius:10px;padding:12px;font-weight:850;width:100%;margin-top:9px}.lbStatus{color:#a8ecc9;font-size:11px;line-height:1.6;min-height:18px}
+</style>
+<script src="./settings.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.181.2/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="game">
+ <div id="ambient"></div>
+ <div id="hud">
+  <div class="brand"><div class="eyebrow">12 DAIys OF CHRISTMAS</div><div class="logo">THE CEILIDH<br><span style="color:#ffdc98">INCIDENT</span></div><div class="sublogo">ORCADIAN STRIP THE WILLOW · FIRST PERSON</div></div>
+  <div class="scoreBlock"><div class="pill"><div class="kicker">SCORE</div><div class="value score" id="score">0000</div></div><div class="pill"><div class="kicker">COMBO</div><div class="value combo" id="combo">×0</div></div><div class="pill"><div class="kicker" id="beatLabel">SPIN BEATS</div><div class="value beat" id="beat">— / 16</div></div></div>
+  <div id="objective"><div class="objK" id="objK">WELCOME TO THE DANCE FLOOR</div><div class="objTitle" id="objT">Try not to embarrass your partner.</div><div class="objDesc" id="objD">RIGHT with your partner · LEFT down the line</div></div>
+  <div id="rhs"><div class="infoBox"><div class="infoTitle">PARTNER B</div><div class="infoValue" id="partnerName">A suspiciously competent stranger</div><div class="smallText" id="partnerMood">Waiting on you</div></div><div class="infoBox"><div class="infoTitle">THE PURSUIT</div><div class="infoValue" id="followerText">Couple 2: flawless</div><div id="chaseBar"><div id="chaseFill"></div></div><canvas id="map" width="184" height="186" aria-label="Overhead map of dancer positions"></canvas><div class="smallText">Mint = you · Gold = goal · Red = unstoppable couple</div></div></div>
+  <div id="status"><div class="statusMain" id="statusMain">EASY CONTROLS</div><div><span class="statusKey">↑ ↓ ← →</span> move in any direction.</div><div><span class="statusKey">CAMERA</span> smoothly tracks your partner or the next target.</div><div><span class="statusKey">Q / E</span> hold to hook elbows · release to let go.</div></div>
+  <div id="figureCycle"><div class="figurePhase" id="phase0">1–2 · ENGAGE LINE</div><div class="figurePhase" id="phase1">3–4 · LEFT HALF-TURN</div><div class="figurePhase" id="phase2">5–6 · FIND PARTNER</div><div class="figurePhase" id="phase3">7–8 · RIGHT HALF-TURN</div></div>
+  <div id="reticle"></div><div id="targetBeacon" aria-live="off">▼ YOUR PARTNER</div><div id="feedback"></div><div id="timingText">FEEL THE BEAT</div><div id="beatRail"></div><div id="spinHud"><span id="spinLabel">SPIN MOMENTUM</span><div id="spinTrack"><div id="spinFill"></div><i id="spinDanger"></i></div><span id="spinValue">READY</span></div>
+  <div id="footControls">
+   <div class="controlGroup"><div class="dpad" role="group" aria-label="Directional movement"><button id="moveUp" class="control move" aria-label="Move forward">↑</button><button id="moveLeft" class="control move" aria-label="Strafe left">←</button><button id="moveDown" class="control move" aria-label="Move back">↓</button><button id="moveRight" class="control move" aria-label="Strafe right">→</button></div></div>
+   <div class="controlGroup"><button class="control arm" id="armL" aria-label="Hold left elbow grab"><strong>LEFT ARM</strong><span>HOLD Q · line</span></button><button class="control arm" id="armR" aria-label="Hold right elbow grab"><strong>RIGHT ARM</strong><span>HOLD E · partner</span></button></div>
+  </div>
+  <div id="toolbar"><button class="tool" id="mute">♫ SOUND ON</button><button class="tool" id="pickMusic">♫ ADD YOUR MUSIC</button><span id="musicName">ORIGINAL JIG</span><button class="tool" id="record">● RECORD RUN</button><button class="tool" id="help">? RULES</button></div><div id="banner">AUTO-FOCUS camera · 2 beats to engage · 2 beats for each half-turn · stay ahead of Couple 2.</div>
+ </div>
+ <input type="file" id="trackInput" accept="audio/*" hidden aria-label="Choose your own music file"><div id="bigCountdown"></div><div id="countdownPrompt">READY · FACE YOUR PARTNER · HOLD E ON GO</div><div id="flash"></div><div id="fade"></div>
+ <div id="overlay"><section class="modal" id="modalContent"></section></div>
+ <div id="loadError"><div><h2>The 3D engine couldn't load</h2><p>This file needs an internet connection to load Three.js. Open it in Chrome, Firefox, Safari or Edge, or upload the folder to a static host.</p></div></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+// THE CEILIDH INCIDENT. Genuine realtime 3D. Every dancer is a hierarchy of jointed meshes.
+// Dance reference: Orcadian Strip the Willow — 16-beat RH spin, then LH side dancer / RH partner.
+const $=s=>document.getElementById(s), clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), mix=(a,b,t)=>a+(b-a)*t, smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)}, mod=(a,n)=>((a%n)+n)%n;
+const S={spin:.85,wobble:.82,clap:1,weird:.78,flight:true};const CONFIG=window.CEILIDH_CONFIG||{};let BPM=clamp(Number(CONFIG.bpm)||120,70,200),B=60/BPM;const ROWS=5, ROW_GAP=3.14, START_Z=-10, LINE_X=2.65;
+const faceYaw=(x,z,tx,tz)=>Math.atan2(x-tx,z-tz); // Three.js camera looks down its local -Z axis.
+const movementAxes=()=>({forward:Number(moveHeld.up)-Number(moveHeld.down),side:Number(moveHeld.right)-Number(moveHeld.left)});
+const gameEl=$('game');let muted=false,audio=null,master=null,mediaDest=null;let musicNextAt=0,musicStep=0;let customAudio=null,customSource=null,customUrl=null,customTrackName='',trackBpm=120;
+// Public GitHub Issues act as the shared-score store. No app connection or secret key.
+const GH_REPO=String(CONFIG.publicRepo||'').trim();
+const GH_ENABLED=/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(GH_REPO);
+const GH_MARKER='<!-- ceilidh-incident-score-v1 -->';
+let lbSubmitting=false,lbSubmitted=false,lbReturnMode='menu',lbPendingUrl='',lbCache=null,lbCacheAt=0;
+const safeHTML=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LOCAL_KEY='ceilidh-incident-v07-local-leaderboard';
+function getLocalBoard(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'[]')}catch(e){return []}}
+function putLocalScore(item){try{const arr=getLocalBoard();arr.push(item);arr.sort((a,b)=>b.score-a.score||a.date.localeCompare(b.date));localStorage.setItem(LOCAL_KEY,JSON.stringify(arr.slice(0,50)));return true}catch(e){return false}}
+function parseScoreIssue(issue){
+ if(issue.pull_request||typeof issue.body!=='string'||!issue.body.includes(GH_MARKER))return null;
+ if(!String(issue.title||'').startsWith('[CEILIDH SCORE]'))return null;
+ const read=(name)=>issue.body.match(new RegExp('^'+name+':\\s*(.+)$','m'))?.[1]?.trim()||'';
+ const name=read('Name').slice(0,22),score=Number(read('Score')),grade=read('Grade').slice(0,5);
+ const accuracy=Number(read('Accuracy')),finishBeat=Number(read('Finish beat'));
+ if(name.length<2||!Number.isInteger(score)||score<0||score>1000000||!['S','A','B','C','D','F'].includes(grade))return null;
+ if(!Number.isFinite(accuracy)||accuracy<0||accuracy>100||!Number.isFinite(finishBeat)||finishBeat<0||finishBeat>999)return null;
+ return {name,score,grade,accuracy,finishBeat,date:issue.created_at||'',url:issue.html_url||'',github:issue.user?.login||''};
+}
+async function fetchGitHubScores(force=false){
+ if(!GH_ENABLED) return null;
+ if(!force&&lbCache&&Date.now()-lbCacheAt<90000)return lbCache;
+ // Preferred path: a static JSON file produced by GitHub Actions after each Issue.
+ // This avoids unauthenticated REST rate limits for partygoers on the same Wi-Fi.
+ try{
+  const snapshot=await fetch('./leaderboard.json?refresh='+(force?Date.now():Math.floor(Date.now()/90000)),{cache:'no-store'});
+  if(snapshot.ok){
+   const parsed=await snapshot.json();
+   if(parsed.schema===1&&parsed.sourceRepo?.toLowerCase()===GH_REPO.toLowerCase()&&Array.isArray(parsed.entries)){
+    lbCache=parsed.entries.filter(v=>v&&Number.isFinite(v.score)&&typeof v.name==='string').slice(0,25);
+    lbCacheAt=Date.now();return lbCache;
+   }
+  }
+ }catch(e){/* Before deployment or when opened as a local HTML file. */}
+ // Fallback for local testing or a Pages build that hasn't run yet.
+ const all=[];
+ for(let page=1;page<=3;page++){
+  const url='https://api.github.com/repos/'+GH_REPO+'/issues?state=all&per_page=100&page='+page+'&sort=created&direction=desc';
+  const res=await fetch(url,{headers:{'Accept':'application/vnd.github+json'},cache:'no-store'});
+  if(!res.ok){if(res.status===404)throw new Error('GitHub repository not found or Issues disabled. Check settings.js.');if(res.status===403||res.status===429)throw new Error('GitHub rate limit reached. Please try again later.');throw new Error('GitHub returned HTTP '+res.status)}
+  const issues=await res.json();if(!Array.isArray(issues))throw new Error('Unexpected GitHub response');
+  for(const issue of issues){const x=parseScoreIssue(issue);if(x)all.push(x)}
+  if(issues.length<100)break;
+ }
+ const bestByAccount=new Map();
+ for(const item of all){
+  // One displayed best score per GitHub account, avoiding leaderboard floods.
+  const key=item.github||item.name.toLowerCase();
+  const prior=bestByAccount.get(key);
+  if(!prior||item.score>prior.score)bestByAccount.set(key,item);
+ }
+ lbCache=[...bestByAccount.values()].sort((a,b)=>b.score-a.score||a.date.localeCompare(b.date)).slice(0,25);lbCacheAt=Date.now();
+ return lbCache;
+}
+function renderBoardRows(entries){
+ if(!entries.length)return '<p style="color:#bed1e3">No results yet. The dance floor awaits its first champion!</p>';
+ return `<div class="lbList"><div class="lbRow lbHeading"><span>RANK</span><span>DANCER</span><span>GRADE</span><span>POINTS</span></div>` + entries.map((x,i)=>`<div class="lbRow"><b>${i+1}</b><span title="${safeHTML(x.name)}${x.github?' (@'+safeHTML(x.github)+')':''}">${safeHTML(x.name)}</span><b>${safeHTML(x.grade)}</b><b>${Math.round(x.score).toLocaleString('en-GB')}</b></div>`).join('')+'</div>';
+}
+async function fillBoard(id='lbInline',force=false){
+ const el=$(id);if(!el)return;
+ el.innerHTML='<p class="lbNote">Loading scores…</p>';
+ try{
+  const shared=GH_ENABLED?await fetchGitHubScores(force):null;
+  const node=$(id);if(!node)return;
+  const entries=shared||getLocalBoard();
+  node.innerHTML=`<p class="lbNote">${shared?'🏆 SHARED GITHUB LEADERBOARD — GitHub sign-in required to submit':'🔒 LOCAL-ONLY PRACTICE SCORES — NOT SHARED'} · Top ${Math.min(entries.length,25)}</p>`+renderBoardRows(entries.slice(0,25));
+ }catch(e){if($(id))$(id).innerHTML=`<p class="lbNote" style="color:#ffb3b3">Shared leaderboard unavailable: ${safeHTML(e.message)}</p><p class="lbNote">Local-only practice scores:</p>`+renderBoardRows(getLocalBoard().slice(0,25))}
+}
+function scoreIssueUrl(data){
+ const title='[CEILIDH SCORE] '+data.name+' — '+data.score+' pts';
+ const body=[GH_MARKER,'The Ceilidh Incident · shared leaderboard entry','','Name: '+data.name,'Score: '+data.score,'Grade: '+data.grade,'Accuracy: '+data.accuracy,'Finish beat: '+data.finishBeat,'Game version: 0.7','','This is a casual, self-reported score generated by the game. Do not change the fields above.'].join('\n');
+ return 'https://github.com/'+GH_REPO+'/issues/new?'+new URLSearchParams({title,body}).toString();
+}
+async function submitLeaderboard(){
+ if(lbSubmitting||lbSubmitted||gameMode!=='win'||!finalResult)return;
+ const name=$('lbName')?.value.normalize('NFKC').trim().replace(/[<>\x00-\x1f]/g,'').slice(0,22)||'';
+ const status=$('lbFeedback');if(name.length<2){status.textContent='Please enter a nickname (at least 2 characters).';return;}
+ lbSubmitting=true;$('submitScore').disabled=true;
+ const data={name,score:Math.round(finalResult.total),grade:finalResult.grade,accuracy:Math.round(finalResult.accuracy),finishBeat:Number(finishBeat.toFixed(1))};
+ try{
+  if(GH_ENABLED){
+   // Opens the GitHub issue form pre-filled, but the player must click Submit new issue there.
+   lbPendingUrl=scoreIssueUrl(data);
+   window.open(lbPendingUrl,'_blank','noopener,noreferrer');
+   status.innerHTML=`Complete your score submission on GitHub: <a href="${safeHTML(lbPendingUrl)}" target="_blank" rel="noopener noreferrer">Open the pre-filled score form</a>, sign in, and click <b>Submit new issue</b>. Return here and refresh the leaderboard after GitHub publishes it.`;
+   $('submitScore').textContent='OPEN AGAIN';
+  }else{
+   if(!putLocalScore({...data,date:new Date().toISOString()}))throw new Error('Local storage is disabled in this browser.');
+   lbSubmitted=true;status.textContent='✓ Saved on this browser only. Set publicRepo in settings.js for GitHub submissions.';
+   await fillBoard('lbInline');
+  }
+ }catch(e){status.textContent='Could not prepare score: '+e.message;}
+ finally{lbSubmitting=false;if($('submitScore'))$('submitScore').disabled=lbSubmitted;}
+}
+function openLeaderboard(){lbReturnMode=gameMode==='win'?'win':'menu';showModal('board');}
+let gameMode='menu',startTime=0,lastTime=performance.now(),seconds=0,beat=0,lastBeat=-100,score=0,combo=0,timingSum=0,timingCount=0,mistakes=0,goodMoves=0,stepCount=0,lateCount=0,clock=0,feedbackUntil=0,feedbackText='',feedbackBad=false;
+let player={x:-.9,z:START_Z,yaw:-Math.PI/2,pitch:.10,vx:0,vz:0,lastFoot:'R',lastStep:-99,steps:0,offSetTime:0};let grip=null,openingAngle=-Math.PI/2,openingReleased=false,openingBonusGiven=false,spinVel=0,overspeed=0,activeTurn=null,goalIndex=-1,stun=0,flightElapsed=0,crashElapsed=0,finalResult=null,finishBeat=0;
+let focusTargetName='partner',focusYaw=-Math.PI/2;let partner=null,followers=[],lineNPC=[],allNPC=[],currentGoal=null,partnerName='';let audienceMood=.5,booCooldown=0,cheerCooldown=0,shake=0,particles=[],moveHeld={up:false,down:false,left:false,right:false},pointerDrag=false,pointerLastX=0,pointerLastY=0,recorder=null,recordChunks=[],captureCanvas=null,captureCtx=null,captureStream=null,recordStart=0;
+const palette={ink:0xf9eedc,pink:0xf29e97,mint:0x8feac7,gold:0xffd28a,night:0x0c1728};
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x14203a);scene.fog=new THREE.FogExp2(0x18243b,.024);
+const camera=new THREE.PerspectiveCamera(76,1,.08,85);camera.rotation.order='YXZ';scene.add(camera);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.55));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.domElement.className='webgl';gameEl.prepend(renderer.domElement);
+const material=(color,rough=.7,emissive=0,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal,emissive,emissiveIntensity:emissive?.24:0});
+const m={wood:material(0x654441),darkWood:material(0x433743),floor:material(0x8b5c51),cream:material(0xfff1df),black:material(0x1c2339),gold:material(0xffd58b,.3,0x5a2d00),mint:material(0x96ebc1),pink:material(0xffa5a9),trousers:material(0x444a77),white:material(0xffffff),dark:material(0x171e33)};
+function createMesh(geometry,mat,parent=scene,x=0,y=0,z=0){const obj=new THREE.Mesh(geometry,mat);obj.position.set(x,y,z);obj.castShadow=true;obj.receiveShadow=true;parent.add(obj);return obj}
+function sphere(parent,r,mat,x=0,y=0,z=0,sx=1,sy=1,sz=1){const o=createMesh(new THREE.SphereGeometry(r,14,10),mat,parent,x,y,z);o.scale.set(sx,sy,sz);return o}
+function cylinder(parent,top,bottom,height,mat,x=0,y=0,z=0){return createMesh(new THREE.CylinderGeometry(top,bottom,height,10),mat,parent,x,y,z)}
+function box(parent,w,h,d,mat,x=0,y=0,z=0){return createMesh(new THREE.BoxGeometry(w,h,d),mat,parent,x,y,z)}
+function textSprite(text,col='#ffffff',bg=null,size=45){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');if(bg){ctx.fillStyle=bg;ctx.fillRect(0,0,512,128)}ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`900 ${size}px system-ui,sans-serif`;ctx.fillStyle=col;ctx.fillText(text,256,64,480);const tx=new THREE.CanvasTexture(c);const mat=new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false});const obj=new THREE.Sprite(mat);obj.scale.set(3.0,.75,1);return obj}
+scene.add(new THREE.HemisphereLight(0xcadfff,0x40334f,2.25));const sun=new THREE.DirectionalLight(0xffdabb,2.7);sun.position.set(-3,11,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-12;sun.shadow.camera.right=12;sun.shadow.camera.top=24;sun.shadow.camera.bottom=-24;sun.shadow.bias=-.0005;scene.add(sun);
+let stageLight=new THREE.PointLight(0xff7c99,130,38,2);stageLight.position.set(-5,6,-7);scene.add(stageLight);let fillLight=new THREE.PointLight(0x71ced0,95,30,2);fillLight.position.set(4,5,3);scene.add(fillLight);
+// A one-piece, colourful, theatrical 3D dance hall.
+box(scene,18,.22,34,m.darkWood,0,-.17,0);const planks=[material(0x79504d),material(0x8d5c51),material(0x80534b),material(0x986650),material(0x765352)];for(let i=0;i<37;i++){const zz=-17+i*.91;box(scene,17.8,.03,.88,planks[i%5],0,.005,zz)}
+for(const xx of [-8.8,8.8]){box(scene,.33,8,35,material(0x29283f),xx,4,0);for(let i=0;i<13;i++){box(scene,.18,7.8,.18,material(0x554146),xx+(xx<0?.12:-.12),3.9,-15+i*2.7)}}
+box(scene,18,9,.4,material(0x2e3146),0,4.3,-17.2);box(scene,18,8,.4,material(0x26283f),0,4.3,17.2);
+const aisle=box(scene,3.85,.019,31,material(0x987361),0,.038,0);aisle.castShadow=false;
+for(let r=0;r<7;r++){const z=START_Z+r*ROW_GAP;for(const xx of [-4.2,4.2]){const tile=box(scene,1.2,.022,2.4,material((r%2)?0x584957:0x5a4d5b),xx,.04,z);tile.castShadow=false;}}
+for(const xx of [-6.6,6.6])for(const zz of [-13,-6,1,8,15]){box(scene,1.7,2.3,.055,material(0x253d52),xx,.0+3.6,zz).rotation.y=Math.PI/2;box(scene,.08,2.35,.08,m.gold,xx,3.6,zz)}
+const bulbs=[];for(let i=0;i<22;i++){const z=-15+i*1.48;for(let j=0;j<2;j++){const x=j?6.3:-6.3;const color=[0xffcd75,0xf493bf,0x79ecd5,0x9ba8ff][(i+j)%4];const b=sphere(scene,.12,material(color,.18,color),x,6.4-.18*Math.sin(i*.52),z);b.castShadow=false;bulbs.push(b)}}
+for(let i=0;i<13;i++){const x=-6+i;const cone=createMesh(new THREE.ConeGeometry(.34,.79,3),material([0xff8c9a,0x81e4cb,0xf4c47b,0xb5a3ed][i%4]),scene,x,5.7,-15.0);cone.rotation.x=Math.PI/2}
+box(scene,11,.45,2.7,material(0x604951),0,.24,-15.4);for(let i=-2;i<=2;i++){const x=i*2.1;const o=cylinder(scene,.28,.33,.95,material([0x8bd8c5,0xefb07a,0xb5a3eb,0x91c8e5,0xe997a5][i+2]),x,1.0,-15.5);sphere(scene,.25,material(0xebbe9a),x,1.75,-15.5);const h=cylinder(scene,.22,.22,.21,material(0x2a263b),x,2,-15.5);h.rotation.z=.1}
+const stageSign=textSprite('THE VERY LOUD BAND','#fff2c5',null,42);stageSign.position.set(0,4.3,-16.65);stageSign.scale.set(6,1.3,1);scene.add(stageSign);
+function rng(seed){let v=seed>>>0;return()=>{v=(v*1664525+1013904223)>>>0;return v/4294967296}};
+const skins=[0xf9d4ae,0xefd0b0,0xb88460,0x764833,0xe3ac84,0xc68e6a,0xf0b995,0x936b50],hairColours=[0x3b2940,0xc98446,0x94d6d1,0x5c5489,0xe1b56a,0x543732,0xe084a5,0xbac0bb],shirts=[0x7db9c9,0xe3ad89,0x95b989,0xc5a3e9,0xd8888d,0xf6c96f,0x8d9bcc];
+function makeDancer(seed,kind='crowd'){
+ const r=rng(seed*78211+591),sk=material(skins[Math.floor(r()*skins.length)]),co=material(shirts[Math.floor(r()*shirts.length)]),hair=material(hairColours[Math.floor(r()*hairColours.length)]),scale=.83+r()*.34,age=r(),shape=r(),weird=S.weird;
+ const g=new THREE.Group();scene.add(g);g.scale.setScalar(scale);const torso=new THREE.Group();torso.position.y=1.02;g.add(torso);
+ const trunk=cylinder(torso,.31+shape*.09,.3+shape*.1,.92,co,0,.44,0);trunk.rotation.z=(r()-.5)*.14;sphere(torso,.32,co,0,.12,0,1.07,.7,.95);
+ const headG=new THREE.Group();headG.position.set(0,1.06,0);torso.add(headG);sphere(headG,.34,sk,0,.01,0,1.1+shape*.13,1.16+weird*.1,1);
+ const eyes=[];for(const side of [-1,1]){sphere(headG,.128,m.white,side*.15,.11,.3,1,1.07,.53);const e=sphere(headG,.055,m.black,side*.15,.11,.382,1,1,.55);eyes.push(e);sphere(headG,.016,m.white,side*.13,.134,.411);sphere(headG,.10,sk,side*.39,0,0,.7,1,.62)}
+ const brows=[];for(const side of [-1,1]){const b=box(headG,.21,.045,.045,hair,side*.15,.29,.337);b.rotation.z=side*.13;brows.push(b)}
+ const smileG=new THREE.Group();smileG.position.set(0,-.17,.32);headG.add(smileG);
+ const smile=createMesh(new THREE.TorusGeometry(.145,.022,5,14,Math.PI),m.black,smileG,0,.035,0);smile.rotation.z=Math.PI;
+ const mouthO=sphere(smileG,.075,m.black,0,-.055,.025,1,1.2,.5);mouthO.visible=false;
+ const hairCount=4+Math.floor(r()*5);for(let i=0;i<hairCount;i++){const a=i*2*Math.PI/hairCount;const h=createMesh(new THREE.ConeGeometry(.13+r()*.09,.31+r()*.22,5),hair,headG,.22*Math.cos(a),.37+.05*r(),.2*Math.sin(a));h.rotation.z=-.7*Math.cos(a);h.rotation.x=.7*Math.sin(a)}
+ if(age>.77){const eyebrows=box(headG,.36,.065,.1,material(0xdfd7c4),0,.43,.12);eyebrows.rotation.z=.08}
+ if(r()>.74){const hat=createMesh(new THREE.ConeGeometry(.38,.5,7),material(0xffd184),headG,0,.62,0);hat.rotation.z=.33}
+ if(r()>.73){const skirt=createMesh(new THREE.ConeGeometry(.53,.52,10),co,g,0,1.04,0);skirt.rotation.z=(r()-.5)*.1}
+ const arms=[];for(const side of [-1,1]){const shoulder=new THREE.Group();shoulder.position.set(side*.37,.76,0);torso.add(shoulder);sphere(shoulder,.13,sk);cylinder(shoulder,.105,.095,.48,sk,0,-.24,0);const elbow=new THREE.Group();elbow.position.y=-.48;shoulder.add(elbow);sphere(elbow,.103,sk);cylinder(elbow,.085,.07,.42,sk,0,-.22,0);const hand=sphere(elbow,.12,sk,0,-.46,.03,1.05,.86,.95);arms.push({shoulder,elbow,hand,side})}
+ const legs=[];for(const side of [-1,1]){const hip=new THREE.Group();hip.position.set(side*.19,.98,0);g.add(hip);sphere(hip,.18,co);cylinder(hip,.14,.12,.49,m.trousers,0,-.245,0);const knee=new THREE.Group();knee.position.y=-.48;hip.add(knee);sphere(knee,.125,m.trousers);cylinder(knee,.12,.09,.43,m.trousers,0,-.22,0);const foot=sphere(knee,.17,m.black,0,-.43,.12,1,.62,1.58);legs.push({hip,knee,foot,side})}
+ const ring=createMesh(new THREE.TorusGeometry(.65,.037,7,38),kind==='partner'?m.mint:(kind==='follower'?m.pink:m.mint),g,0,.04,0);ring.rotation.x=-Math.PI/2;ring.visible=kind==='partner'||kind==='follower';ring.castShadow=false;
+ const label=kind==='partner'?textSprite('▼ PARTNER B ▼','#9affb1','#073d2699',44):kind==='follower'?textSprite('PERFECT COUPLE','#ff9fac',null,37):null;if(label){label.position.set(0,2.84,0);label.scale.set(kind==='partner'?2.8:2.5,.67,1);g.add(label)}
+ const npc={g,torso,headG,arms,legs,eyes,brows,smile,mouthO,smileG,ring,label,seed,r,kind,phase:r()*6.28,side:0,row:0,mood:.6,sad:0,knock:0,knockVec:new THREE.Vector3()};allNPC.push(npc);return npc;
+}
+for(let i=1;i<=ROWS;i++)for(const side of [-1,1]){const n=makeDancer(200+i*5+(side+1),'crowd');n.row=i;n.side=side;n.g.position.set(side*LINE_X,0,START_Z+i*ROW_GAP);n.g.rotation.y=side===1?-Math.PI/2:Math.PI/2;lineNPC.push(n)}
+partner=makeDancer(791,'partner');partner.g.position.set(.9,0,START_Z);followers=[makeDancer(982,'follower'),makeDancer(983,'follower')];followers[0].g.position.set(-LINE_X,0,START_Z+ROW_GAP);followers[1].g.position.set(LINE_X,0,START_Z+ROW_GAP);for(const n of lineNPC)if(n.row===1)n.g.visible=false;
+const goalMarker=new THREE.Group();scene.add(goalMarker);const markerTorus=createMesh(new THREE.TorusGeometry(.63,.067,9,48),m.gold,goalMarker,0,.13,0);markerTorus.rotation.x=-Math.PI/2;markerTorus.castShadow=false;const markerPole=cylinder(goalMarker,.025,.025,2.4,m.gold,0,1.35,0);markerPole.castShadow=false;const diamond=createMesh(new THREE.OctahedronGeometry(.2),m.gold,goalMarker,0,2.5,0);diamond.castShadow=false;const arrowPoint=textSprite('GRAB HERE','#ffe5aa',null,35);goalMarker.add(arrowPoint);arrowPoint.position.set(0,3,0);arrowPoint.scale.set(2.2,.55,1);
+const hands=new THREE.Group();camera.add(hands);for(const side of [-1,1]){const arm=new THREE.Group();arm.position.set(side*.75,-.60,-1.12);hands.add(arm);sphere(arm,.15,material(0xc58d74),0,-.07,0,1.0,1.3,.9);const upper=cylinder(arm,.12,.17,.66,material(side<0?0x98e2c5:0xf3b8a5),0,-.23,.04);upper.rotation.x=.4;const fore=new THREE.Group();fore.position.set(0,-.48,-.09);arm.add(fore);cylinder(fore,.11,.09,.54,material(0xc58d74),0,-.18,-.08);sphere(fore,.18,material(0xc58d74),0,-.44,-.15,1.05,.73,1.15);arm.userData={side,fore};}
+
+// Explicitly articulated hooked elbows: two bent arms curl over/under the same joint.
+function newLinkRig(playerTint,otherTint){
+ const rig=new THREE.Group();scene.add(rig);rig.visible=false;
+ function limb(mat,radius){return createMesh(new THREE.CylinderGeometry(radius,radius,1,12),mat,rig)}
+ const aMat=material(playerTint,.57),bMat=material(otherTint,.57);
+ const parts=[limb(aMat,.105),limb(aMat,.09),limb(bMat,.105),limb(bMat,.09)];
+ const elbows=[sphere(rig,.135,aMat),sphere(rig,.135,bMat)];
+ const link=sphere(rig,.115,m.gold);link.castShadow=false;
+ return {rig,parts,elbows,link};
+}
+const playerLink=newLinkRig(0x9df8dc,0xffaa89),chaseLink=newLinkRig(0xf7ae9b,0x86cbec);
+const UP=new THREE.Vector3(0,1,0),vP=new THREE.Vector3(),vN=new THREE.Vector3();
+function beam(mesh,a,b){const delta=b.clone().sub(a),length=Math.max(.001,delta.length());mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.scale.y=length;mesh.quaternion.setFromUnitVectors(UP,delta.divideScalar(length))}
+function poseLink(rig,pa,pb,t){
+ const mid=pa.clone().add(pb).multiplyScalar(.5).add(new THREE.Vector3(0,.03+Math.sin(t*12)*.045,0));
+ const transverse=new THREE.Vector3(pb.z-pa.z,0,pa.x-pb.x).normalize();if(transverse.lengthSq()<.1)transverse.set(1,0,0);
+ const ae=mid.clone().addScaledVector(transverse,.16).add(new THREE.Vector3(0,.12,0));
+ const be=mid.clone().addScaledVector(transverse,-.16).add(new THREE.Vector3(0,-.10,0));
+ const amid=mid.clone().addScaledVector(transverse,-.085),bmid=mid.clone().addScaledVector(transverse,.085);
+ beam(rig.parts[0],pa,ae);beam(rig.parts[1],ae,amid);
+ beam(rig.parts[2],pb,be);beam(rig.parts[3],be,bmid);
+ rig.elbows[0].position.copy(ae);rig.elbows[1].position.copy(be);rig.link.position.copy(mid);rig.rig.visible=true;
+}
+function npcShoulder(n,arm){n.g.updateWorldMatrix(true,true);return n.arms[arm==='L'?0:1].shoulder.getWorldPosition(new THREE.Vector3())}
+function updateLinkedElbows(t){
+ playerLink.rig.visible=false;chaseLink.rig.visible=false;
+ const useOpening=goalIndex===-1&&!openingReleased&&grip==='R';
+ const dancer=activeTurn?.goal.person||(useOpening?partner:null);
+ const arm=activeTurn?.goal.arm||'R';
+ if(dancer&&grip===arm){
+  const right=new THREE.Vector3(Math.cos(player.yaw),0,-Math.sin(player.yaw));
+  const anchor=new THREE.Vector3(player.x,1.52,player.z).addScaledVector(right,arm==='R'?.28:-.28);
+  poseLink(playerLink,anchor,npcShoulder(dancer,arm),t);
+ }
+ const fb=beat-32;
+ if(['play','catch','fly'].includes(gameMode)&&fb>=0){
+  let second=null,arm='R';
+  if(fb<16){second=followers[1];}
+  else{
+   const elapsed=fb-16,row=Math.min(ROWS,2+Math.floor(elapsed/8));
+   const within=mod(elapsed,8);
+   if(within>=2&&within<4){second=lineNPC.find(n=>n.row===row&&n.side===1)||null;arm='L'}
+   else if(within>=6&&within<8){second=followers[1];arm='R'}
+  }
+  if(second)poseLink(chaseLink,npcShoulder(followers[0],arm),npcShoulder(second,arm),t);
+ }else if(gameMode==='play'&&goalIndex>=0&&beat>=18&&beat<20){
+  // Partner B's parallel left-elbow turn with the opposite member of the first pair.
+  poseLink(chaseLink,npcShoulder(partner,'L'),npcShoulder(followers[0],'L'),t);
+ }
+}
+
+const names=['Alex','Sam','Jamie','Robin','Rowan','Morgan','Ash','Taylor','Kit','Charlie','Casey','Remy','Drew','Billie','Frankie','Rory'];
+const goals=[];for(let i=1;i<=ROWS;i++){const z=START_Z+i*ROW_GAP;goals.push({type:'left',row:i,x:LINE_X,z,arm:'L',ideal:16+(i-1)*8+4,person:i===1?followers[1]:lineNPC[(i-1)*2+1]});goals.push({type:'right',row:i,x:-.73,z:z+ROW_GAP*.49,arm:'R',ideal:16+(i-1)*8+8,person:partner})}
+function formatScore(v){return Math.max(0,Math.round(v)).toString().padStart(4,'0')}
+function setFeedback(message,bad=false,duration=1.15){feedbackText=message;feedbackBad=bad;feedbackUntil=clock+duration;$('feedback').textContent=message;$('feedback').classList.toggle('bad',bad);$('feedback').classList.add('shown')}
+function setObjective(k,t,d){$('objK').textContent=k;$('objT').textContent=t;$('objD').textContent=d}
+function initAudio(){
+ if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.gain.value=.68;mediaDest=audio.createMediaStreamDestination();master.connect(audio.destination);master.connect(mediaDest)}
+ if(audio.state==='suspended')audio.resume().catch(()=>{});
+ if(!musicNextAt)musicNextAt=audio.currentTime+.08;
+ if(customAudio && !customSource){customSource=audio.createMediaElementSource(customAudio);customSource.connect(master)}
+ master.gain.value=muted?0:.68;
+}
+function noteAt(freq,at,duration=.1,type='triangle',volume=.12){if(!audio||muted)return;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(freq,at);g.gain.setValueAtTime(Math.max(.0001,volume),at);g.gain.exponentialRampToValueAtTime(.0001,at+duration);o.connect(g);g.connect(master);o.start(at);o.stop(at+duration+.015)}
+function note(freq,duration=.10,type='sine',volume=.14){if(!audio||muted)return;noteAt(freq,audio.currentTime,duration,type,volume)}
+// Original, always-playing 6/8-flavoured jig accompaniment (not only per-beat sound effects).
+const jig=[587.33,659.25,698.46,783.99,698.46,659.25,587.33,523.25,493.88,587.33,659.25,587.33,523.25,493.88,440,493.88,
+ 523.25,587.33,659.25,698.46,783.99,880,783.99,698.46,659.25,587.33,523.25,493.88,440,493.88,523.25,587.33];
+const bass=[146.83,146.83,130.81,130.81,110,110,130.81,130.81];
+function pumpMusic(){
+ if(customAudio)return; // Uploaded track replaces, rather than competes with, the built-in jig.
+ if(!audio||muted||!['countin','play','fly','catch','win'].includes(gameMode))return;
+ if(audio.state==='suspended')return;
+ if(musicNextAt<audio.currentTime-.5)musicNextAt=audio.currentTime+.045;
+ let n=0;
+ while(musicNextAt<audio.currentTime+.2&&n++<8){
+  const i=musicStep++,time=musicNextAt;musicNextAt+=B/2;
+  noteAt(jig[i%jig.length],time,.22,'triangle',.22);
+  if(i%2===0)noteAt(bass[Math.floor(i/8)%bass.length],time,.42,'sawtooth',.092);
+  if(i%4===2)noteAt(jig[(i+4)%jig.length]/2,time,.31,'sine',.058);
+  if(i%2===1)noteAt(880,time,.032,'triangle',.025);
+ }
+}
+function stopCustomMusic(rewind=false){if(!customAudio)return;customAudio.pause();if(rewind){try{customAudio.currentTime=0}catch(e){}}}
+function startCustomMusic(){if(!customAudio||muted)return;initAudio();customAudio.play().catch(()=>setFeedback('PRESS SOUND ON TO ENABLE YOUR TRACK',true,1.9));}
+function loadCustomMusic(file){
+ if(!file)return;if(!file.type.startsWith('audio/')&&!/\.(mp3|wav|m4a|ogg|flac|aac|opus)$/i.test(file.name)){setFeedback('PLEASE CHOOSE AN AUDIO FILE',true,1.6);return;}
+ stopCustomMusic();if(customUrl)URL.revokeObjectURL(customUrl);
+ if(customSource){customSource.disconnect();customSource=null;}
+ customUrl=URL.createObjectURL(file);customAudio=new Audio(customUrl);customAudio.loop=true;customAudio.preload='auto';customAudio.volume=.92;customTrackName=file.name;
+ $('musicName').textContent=file.name; $('musicName').title=file.name;
+ const modalName=$('chosenTrack');if(modalName)modalName.textContent=file.name;
+ try{initAudio()}catch(e){console.warn('Audio context unavailable',e)}
+ if(gameMode==='play')startCustomMusic();
+ setFeedback('YOUR TRACK IS READY: '+file.name.slice(0,24),false,2.0);
+}
+function loadBundledMusic(){
+ const src=String(CONFIG.musicFile||'').trim();if(!src)return;
+ const a=new Audio(src);a.loop=true;a.preload='metadata';a.volume=.92;
+ const name=src.split('/').pop()||'BUNDLED TRACK';
+ a.addEventListener('error',()=>{
+  if(customAudio!==a)return;
+  console.warn('Bundled soundtrack not found, switching to generated jig:',src);
+  if(customSource){customSource.disconnect();customSource=null;}
+  customAudio=null;customTrackName='';
+  $('musicName').textContent='ORIGINAL JIG (NO TRACK YET)';
+  if($('chosenTrack'))$('chosenTrack').textContent='No bundled file found · original jig';
+  if(audio){musicNextAt=audio.currentTime+.04;musicStep=0;}
+ });
+ customAudio=a;customTrackName=name;
+ $('musicName').textContent=name;
+}
+function beatSound(n,isCount=false){if(muted)return;if(isCount){note(784,.12,'triangle',.26);if(n===3)note(1046.5,.26,'triangle',.23)}else if(n%2===0){note(175,.07,'triangle',.07)}}
+function beepsPositive(){note(880,.12,'sine',.16);note(1320,.18,'triangle',.09)}function beepsFail(){note(172,.28,'sawtooth',.10);note(134,.32,'triangle',.07)}
+function crowdBoo(){if(booCooldown>0)return;booCooldown=2.7;note(124,.65,'sawtooth',.08);note(147,.58,'triangle',.06);note(186,.42,'sawtooth',.045);setFeedback('BOOOOOOO! THE LINE DISAPPROVES',true,1.3)}
+function crowdCheer(){if(cheerCooldown>0)return;cheerCooldown=3.6;note(659,.17,'triangle',.07);note(880,.19,'triangle',.10);note(1046,.26,'sine',.08)}
+function spawnTangle(){for(let i=0;i<22;i++){const a=i*2*Math.PI/22,shade=[0xff8f9a,0xc4a0ef,0xffd37b,0x99e5c8][i%4];const spark=createMesh(new THREE.OctahedronGeometry(.09+.045*(i%3)),material(shade,.25,shade),scene,player.x+Math.cos(a)*.3,1.4+Math.sin(a)*.3,player.z+1.0);spark.castShadow=false;particles.push({mesh:spark,age:0,vel:new THREE.Vector3(Math.cos(a)*2.5,2.0+Math.sin(a)*1.5,Math.sin(a)*1.1)})}}
+function showModal(mode,extra){if(document.pointerLockElement && document.exitPointerLock)document.exitPointerLock();const el=$('modalContent');if(mode==='menu')el.innerHTML=`<div class="eyebrow">12 DAIys OF CHRISTMAS · SHAREABLE PARTY GAME</div><h1>THE CEILIDH<br><span class="highlight">INCIDENT</span></h1><p>You are <b>Partner A</b> in an Orcadian Strip the Willow. Partner B is offensively punctual. The couple behind you is <i>perfect</i>. Your job: keep the rhythm, grab the right arm, and get to the bottom of the set before the perfect couple catches you.</p><div class="ruleGrid"><div class="rule"><b>E · RIGHT ARM</b>HOLD E to hook elbows; spin for 16 beats. RELEASE E to stop. Turbo spin launches partners.</div><div class="rule"><b>Q · LEFT ARM</b>HOLD Q to turn a side dancer. RELEASE to complete the turn; wrong arm = chaos.</div><div class="rule"><b>↑ ↓ ← → · MOVE</b>Forward, back and strafe left/right. Hold ↑ during a spin to build speed; add ←/→ for dangerous acceleration. ↓ slows you.</div><div class="rule"><b>AUTO-FOCUS CAMERA</b>The view smoothly follows the next dancer. When you're hooked, it tracks that person's face. No mouse needed.</div></div><p>The <b>perfect couple starts in the first outer pair of spots</b>. Turn the right-side perfect dancer FIRST, then meet your own partner in the middle between rows. Any completed grab advances the dance; a tiny turn just scores badly.</p><p><b>Win:</b> finish the line and earn a timing grade. <b>Lose:</b> launch Partner B, or get flattened by the couple behind. NPCs will judge you mercilessly.</p><div class="optionLine"><label><input type="checkbox" id="audioOpt" ${muted?'':'checked'}> Music and rhythm sounds</label><span>Best played in a desktop browser</span></div><div class="musicInfo"><button id="pickTrack" type="button">♫ CHOOSE YOUR OWN MUSIC</button><small id="chosenTrack">${safeHTML(customTrackName||'No file selected · original jig')}</small><label><small>Track BPM:</small> <input id="trackBpm" aria-label="Track beats per minute" type="number" min="70" max="200" step="1" value="${BPM}"></label></div><p style="font-size:11px">For a shared soundtrack: place <b>ceilidh-track.mp3</b> in <b>assets/</b> and set the BPM in <b>settings.js</b>. You can still pick a different local track just for yourself; local choices are not uploaded. The track starts on GO and loops. Make sure the recording’s first downbeat aligns with GO.</p><button id="startBtn" class="cta">▶ STEP ONTO THE DANCE FLOOR</button><button class="lbSecondary" id="leaderboardBtn">🏆 VIEW LEADERBOARD</button>`;
+ else if(mode==='win')el.innerHTML=`<div class="eyebrow">YOU SURVIVED THE ORCADIAN</div><h1>THE BOTTOM<br><span class="highlight">OF THE LINE!</span></h1><p>${extra.quote}</p><div class="endStats"><div class="endStat"><b>${formatScore(extra.total)}</b><span>FINAL POINTS</span></div><div class="endStat"><b>${extra.grade}</b><span>CEILIDH GRADE</span></div><div class="endStat"><b>${extra.accuracy}%</b><span>BEAT PRECISION</span></div></div><p><b>Finish bonus:</b> +${extra.finish} timing points · <b>Clean turns:</b> ${goodMoves}/11 · <b>Errors:</b> ${mistakes} · <b>Finish:</b> beat ${finishBeat.toFixed(1)} (ideal 56).</p><div class="lbForm"><h3>🏆 Enter the leaderboard</h3><p style="font-size:11px">Choose a nickname. GitHub submission opens in a new tab, where you click Submit new issue. Your GitHub username and score become public. Submitting is optional.</p><div class="lbFields"><input id="lbName" maxlength="22" autocomplete="nickname" aria-label="Leaderboard nickname" placeholder="Your dancer nickname"/><button id="submitScore" type="button">SUBMIT VIA GITHUB</button></div><div id="lbFeedback" class="lbStatus">${GH_ENABLED?'Shared GitHub Issues board configured. You need a GitHub account to post.':'Local practice leaderboard only (not shared). Set publicRepo in settings.js.'}</div><div id="lbInline"></div><button class="lbSecondary" id="refreshBoard" type="button">↻ REFRESH LEADERBOARD</button></div><button class="cta" id="startBtn">↻ DANCE AGAIN · NEW PARTNER</button><button class="lbSecondary" id="leaderboardBtn">🏆 VIEW LEADERBOARD</button>`;
+ else if(mode==='board')el.innerHTML=`<div class="eyebrow">12 DAIys OF CHRISTMAS · COMMUNITY SCORES</div><h1>THE <span class="highlight">LEADERBOARD</span></h1><p>Who's managed to reach the bottom of the set without causing a diplomatic incident?</p><div id="lbInline"></div><button class="lbSecondary" id="refreshBoard" type="button">↻ REFRESH LEADERBOARD</button><button class="lbSecondary" id="returnBtn">← BACK TO ${lbReturnMode==='win'?'RESULTS':'THE GAME'}</button>`;
+ else el.innerHTML=`<div class="eyebrow">THE CEILIDH HAS SPOKEN</div><h1>${extra.title}</h1><p>${extra.copy}</p><div class="endStats"><div class="endStat"><b>${formatScore(score)}</b><span>POINTS BEFORE DISASTER</span></div><div class="endStat"><b>${Math.round(beat)}</b><span>BEATS SURVIVED</span></div><div class="endStat"><b>${mistakes}</b><span>INCIDENTS</span></div></div><button class="cta" id="startBtn">↻ RESTART · NEW PARTNER</button>`;
+ $('overlay').classList.remove('hidden');
+ $('leaderboardBtn')?.addEventListener('click',openLeaderboard);
+ $('returnBtn')?.addEventListener('click',()=>showModal(lbReturnMode,finalResult));
+ $('submitScore')?.addEventListener('click',submitLeaderboard);
+ $('refreshBoard')?.addEventListener('click',()=>fillBoard('lbInline',true));
+ if(mode==='win'&&lbSubmitted){$('submitScore').disabled=true;$('lbFeedback').textContent='✓ Saved locally on this browser (not shared).';}
+ if(mode==='board'||mode==='win')fillBoard();
+ if(mode==='menu')$('pickTrack').addEventListener('click',()=>$('trackInput').click());
+ $('startBtn')?.addEventListener('click',()=>{if(mode==='menu'){muted=!$('audioOpt').checked;BPM=clamp(Number($('trackBpm').value)||120,70,200);B=60/BPM;}initAudio();reset();});}
+function reset(){lbSubmitted=false;lbSubmitting=false;lbPendingUrl='';gameMode='countin';score=0;combo=0;timingSum=0;timingCount=0;mistakes=0;goodMoves=0;lateCount=0;stepCount=0;lastBeat=-100;beat=0;seconds=0;clock=0;stun=0;flightElapsed=0;crashElapsed=0;overspeed=0;spinVel=0;openingAngle=-Math.PI/2;openingReleased=false;openingBonusGiven=false;goalIndex=-1;activeTurn=null;grip=null;player={x:-.9,z:START_Z,yaw:-Math.PI/2,pitch:.10,vx:0,vz:0,lastFoot:'R',lastStep:-99,steps:0,offSetTime:0};shake=0;audienceMood=.6;for(const key of Object.keys(moveHeld))moveHeld[key]=false;
+ for(const n of allNPC){n.knock=0;n.knockVec.set(0,0,0);n.g.rotation.x=0;n.g.rotation.z=0;n.g.position.y=0;}
+ followers.forEach((n,i)=>{n.g.position.set(i?LINE_X:-LINE_X,0,START_Z+ROW_GAP);n.g.rotation.y=i?-Math.PI/2:Math.PI/2;});
+ for(const n of lineNPC){n.g.position.set(n.side*LINE_X,0,START_Z+n.row*ROW_GAP);n.g.rotation.y=n.side===1?-Math.PI/2:Math.PI/2;n.g.visible=n.row!==1;}
+ focusTargetName='partner';focusYaw=-Math.PI/2;partnerName=names[Math.floor(Math.random()*names.length)];$('partnerName').textContent=partnerName;const previous=partner;scene.remove(previous.g);allNPC=allNPC.filter(n=>n!==previous);partner=makeDancer(Math.floor(Math.random()*100000)+3000,'partner');partner.g.position.set(.9,0,START_Z);for(let i=1;i<goals.length;i+=2)goals[i].person=partner;lastTime=performance.now();startTime=performance.now()+4*B*1000;stopCustomMusic(true);if(audio){musicStep=0;musicNextAt=audio.currentTime+.08;}particles.forEach(p=>scene.remove(p.mesh));particles=[];$('mute').textContent=muted?'♫ SOUND OFF':'♫ SOUND ON';setObjective('COUNT-IN · FOUR BEATS','4 · 3 · 2 · 1 · FACE YOUR PARTNER!','Face your partner. HOLD E to hook right elbows; ↑ spins, ↓ brakes. RELEASE E after beat 16.');$('overlay').classList.add('hidden');$('bigCountdown').style.display='flex';$('countdownPrompt').style.display='block';$('feedback').classList.remove('shown');$('fade').style.opacity=0;$('flash').style.opacity=0;updateArmButtons();if(!muted)initAudio();}
+function target(){return goalIndex>=0&&goalIndex<goals.length?goals[goalIndex]:null}
+function nearestIdealBeat(){return beat-Math.round(beat)}
+function foot(which){if(gameMode!=='play'||stun>0)return;const now=seconds;if(now-player.lastStep<.135)return;const alternate=(which!==player.lastFoot),delta=Math.abs(nearestIdealBeat()),accuracy=1-clamp(delta/.5,0,1);player.lastFoot=which;player.lastStep=now;stepCount++;
+ let pts=0;if(alternate){pts=delta<.13?24:delta<.27?13:4;combo++;}else{combo=0;pts=0;score=Math.max(0,score-12);setFeedback('TWO LEFT FEET!',true,.52);mistakes++;audienceMood-=.08;}
+ if(alternate&&delta<.13&&Math.random()<.36)setFeedback('ON THE BEAT +24',false,.49);
+ score+=pts*(1+Math.min(combo,18)*.015);timingSum+=accuracy;timingCount++;if(alternate&&combo>0&&combo%12===0)crowdCheer();
+ // Legacy tap is retained only for regression tests; movement now uses held arrow keys.
+ if(activeTurn||goalIndex===-1){spinVel+=alternate?.38:.12;spinVel=clamp(spinVel,0,9)}else{const f=-Math.sin(player.yaw),z=-Math.cos(player.yaw);player.vx+=f*.4;player.vz+=z*.4;}
+}
+function setGrip(which){
+ if(gameMode!=='play'||stun>0)return;
+ if(grip&&grip!==which)releaseArm(grip);
+ if(gameMode!=='play')return;
+ grip=which;updateArmButtons();attemptGrab();
+}
+function releaseArm(which){
+ if(grip!==which)return;
+ if(goalIndex===-1&&!openingReleased){
+  openingReleased=true;
+  if(beat<15.2){const early=Math.ceil(15.2-beat);score=Math.max(0,score-early*18);mistakes++;combo=0;audienceMood-=.16;setFeedback(`EARLY RELEASE! −${early*18}`,true,1.3)}
+  else if(beat<=17){score+=300+Math.round(Math.min(spinVel,5.5)*30);goodMoves++;setFeedback('16-BEAT SPIN COMPLETE! +300',false,1.3);crowdCheer()}
+  if(beat>=16)completeOpening();
+ }else if(activeTurn){
+  finishTurn(); // A partial turn is a poor turn, not a forced repeat of the same partner.
+ }
+ grip=null;updateArmButtons();
+}
+function selectArm(which){if(grip===which)releaseArm(which);else setGrip(which)}
+function updateArmButtons(){$('armL').classList.toggle('selected',grip==='L');$('armR').classList.toggle('selected',grip==='R')}
+function armDist(g){return Math.hypot(player.x-g.x,player.z-g.z)}
+function goalPos(g){return g?.type==='right'?{x:g.x,z:g.z}:g?.person?.kind==='follower'?{x:g.person.g.position.x,z:g.person.g.position.z}:g}
+function completeOpening(){
+ if(goalIndex!==-1||beat<16)return;
+ goalIndex=0;openingReleased=true;player.vx*=.2;player.vz*=.2;
+ setObjective('FIGURE 1 · ENGAGE THE LINE','2 BEATS TO ENGAGE LINE · LEFT ARM','Walk to your target; HOLD Q near the end of the 2-beat approach, then turn halfway over 2 beats.');
+ setFeedback('SPIN DONE! NOW FIND THE NEXT DANCER',false,2);
+}
+function attemptGrab(){
+ if(gameMode!=='play'||activeTurn||!grip||stun>0)return;
+ if(goalIndex===-1){if(grip!=='R'){weirdTurn();return;}if(openingReleased)return;
+  if(armDist({x:partner.g.position.x,z:partner.g.position.z})<2.45)return;
+  return;
+ }
+ const g=target();if(!g)return;const p=goalPos(g);
+ if(armDist(p)>2.05 || (g.type==='right'&&armDist({x:partner.g.position.x,z:partner.g.position.z})>2.55))return;
+ if(grip!==g.arm){weirdTurn();return}startTurn(g)
+}
+function weirdTurn(){mistakes++;combo=0;score=Math.max(0,score-82);audienceMood=clamp(audienceMood-.24,-1,1);stun=1.2;shake=1.1;grip=null;updateArmButtons();setFeedback('WRONG ARM! HUMAN PRETZEL −82',true,1.4);spawnTangle();beepsFail();setTimeout(()=>{if(gameMode==='play')crowdBoo()},300);}
+function startTurn(g){
+ const p=g.person.g.position;
+ const centerX=(player.x+p.x)/2,centerZ=(player.z+p.z)/2;
+ const radius=clamp(Math.hypot(player.x-p.x,player.z-p.z)/2,.52,1.02);
+ const ang=Math.atan2(player.x-centerX,player.z-centerZ);
+ activeTurn={goal:g,angle:0,spinAngle:ang,centerX,centerZ,radius,startBeat:beat,spinAt:g.ideal-2};
+ spinVel=3.08;player.vx*=.15;player.vz*=.15;
+ setFeedback(g.arm==='L'?'LEFT ELBOW LINKED · HALF-TURN!':'RIGHT ELBOW LINKED · HALF-TURN!',false,1);
+}
+function finishTurn(){
+ if(!activeTurn)return;
+ const turn=activeTurn,g=turn.goal;
+ const engageError=Math.abs(turn.startBeat-(g.ideal-2));
+ const releaseError=Math.abs(beat-g.ideal);
+ const halfTurnError=Math.abs(turn.angle-Math.PI);
+ const engagePrecision=clamp(1-engageError/2.1,0,1);
+ const releasePrecision=clamp(1-releaseError/2.0,0,1);
+ const halfTurnPrecision=clamp(1-halfTurnError/(Math.PI*.7),0,1);
+ const accuracy=engagePrecision*.28+releasePrecision*.47+halfTurnPrecision*.25;
+ const overdue=Math.max(0,beat-g.ideal);
+ const barelyTurned=turn.angle<Math.PI*.18;
+ const pts=barelyTurned?0:Math.max(16,Math.round(105+310*accuracy+Math.min(combo,24)*2-overdue*55));
+ if(barelyTurned){mistakes++;combo=0;audienceMood-=.19;score=Math.max(0,score-40)}
+ score+=pts;timingSum+=accuracy;timingCount++;goodMoves++;combo+=2;
+ const verdict=barelyTurned?'BARELY TURNED — KEEP MOVING':releaseError<.42&&halfTurnError<.34&&engageError<.75?'PERFECT HALF-TURN':
+  releaseError<1.2&&halfTurnError<.8?'NICELY DONE':overdue>1?'OVERTIME SPIN':'WOBBLY BUT VALID';
+ setFeedback(`${verdict} ${barelyTurned?'−40':'+'+pts}`,barelyTurned||overdue>2,1.4);
+ if(accuracy>.79){beepsPositive();crowdCheer()}else if(releaseError>2){lateCount++;audienceMood-=.08}
+ goalIndex++;activeTurn=null;spinVel*=.2;overspeed=0;
+ if(goalIndex>=goals.length){endLine();return}
+ const next=target();setObjective(`FIGURE ${Math.floor(goalIndex/2)+1} · TURN ${goalIndex+1}/${goals.length}`,
+  next.type==='left'?`2 BEATS: REACH LINE DANCER ${next.row} · Q`:`2 BEATS: FIND ${partnerName.toUpperCase()} · E`,
+  next.type==='right'?'Your partner is waiting IN THE CENTRE between rows. Follow the GREEN arrow; you must walk there.':
+   'The camera pans to the GOLD target. The first dancer is from the perfect couple! Walk there, hook LEFT elbow, and turn halfway.');
+}
+function endLine(){gameMode='win';stopCustomMusic();finishBeat=beat;const error=Math.abs(beat-56);const finish=Math.max(0,Math.round(2000-error*170));const precision=timingCount?Math.round(timingSum/timingCount*100):0;const momentum=Math.max(0,Math.round(combo*25));const total=Math.round(score+finish+momentum-Math.min(mistakes*30,400));score=total;const grade=total>6900&&precision>75?'S':total>5500?'A':total>4200?'B':total>3100?'C':'D';const quote=grade==='S'?'The caller is weeping with joy. You may be the first person ever to master a Christmas ceilidh.':grade==='A'?'Your partner beams. The line erupts. Even the perfect couple looks slightly threatened.':grade==='B'?'A credible performance, despite moments of alarming limb independence.':'You reached the bottom. That is, in itself, a festive miracle.';
+ finalResult={total,grade,accuracy:precision,finish,quote};setFeedback('THE BOTTOM OF THE SET!');setTimeout(()=>{if(gameMode==='win'){showModal('win',finalResult);if(recorder?.state==='recording'){setTimeout(()=>{if(recorder?.state==='recording'){recorder.stop();$('record').textContent='● RECORD RUN'}},650)}}},1300);}
+function gameOver(kind){if(gameMode!=='play')return;gameMode=kind;stopCustomMusic();beepsFail();grip=null;updateArmButtons();shake=2.5;flightElapsed=0;crashElapsed=0;audienceMood=-1;if(kind==='fly')setFeedback('PARTNER B HAS LEFT THE BUILDING',true,3);else setFeedback('THE PERFECT COUPLE HAS ARRIVED',true,3)}
+function updateClock(dt){clock+=dt;
+ if(gameMode==='countin'){
+  const left=(startTime-performance.now())/1000,n=Math.max(1,Math.ceil(left/B));
+  $('bigCountdown').textContent=left>0?n:'GO!';if(n!==lastBeat&&left>0){lastBeat=n;beatSound(4-n,true)}
+  if(left<=0){gameMode='play';$('bigCountdown').style.display='none';$('countdownPrompt').style.display='none';startTime=performance.now();lastBeat=-1;startCustomMusic();setFeedback('GO! 16 BEATS — RIGHT ARM',false,1);
+   setObjective('BARS 1–8 · SIXTEEN BEATS','HOLD E TO SPIN WITH PARTNER B','HOLD E to hook RIGHT elbows. ↑ accelerates, ↓ brakes. RELEASE E near beat 16; then WALK to the gold target.');}
+  return;
+ }
+ if(gameMode!=='play')return;
+ seconds=(performance.now()-startTime)/1000;beat=seconds/B;const n=Math.floor(beat);
+ if(n!==lastBeat){lastBeat=n;beatSound(n);
+  const moving=Object.values(moveHeld).some(Boolean);
+  if(moving){stepCount++;score+=6+Math.min(combo,15);timingSum+=.76;timingCount++}
+  if(goalIndex===-1&&grip==='R'&&!openingReleased&&spinVel>1.7&&spinVel<5.8)score+=20+Math.round(spinVel*2);
+  if(n===16&&goalIndex===-1){
+   if(!grip||openingReleased){
+    if(!openingReleased){openingReleased=true;mistakes++;audienceMood-=.2;setFeedback('MISSED THE OPENING SPIN! GET MOVING',true,1.3)}
+    completeOpening();
+   }else{setObjective('BEAT 16 · LET GO WHEN READY','RELEASE E TO LEAVE THE SPIN','You can keep spinning, but every extra beat loses points. ↑+←/→ can launch your partner!');setFeedback('16 BEATS! RELEASE E!',false,1.7)}
+  }
+  if(n===32)setFeedback('COUPLE 2 STARTS ITS PERFECT SPIN',true,2.1);
+  if(n===48)setFeedback('THE CHASE IS ON!',true,1.7);
+ }
+ if(goalIndex===-1&&openingReleased&&beat>=16)completeOpening();
+}
+function updatePhysics(dt){
+ if(gameMode!=='play')return;
+ stun=Math.max(0,stun-dt);spinVel*=Math.exp(-(activeTurn?.04:.47)*dt);if(spinVel<.02)spinVel=0;
+ if(stun>0){shake+=dt*.5;return}
+ const {forward,side}=movementAxes();
+ if(goalIndex===-1){
+  const holding=!openingReleased&&grip==='R'&&armDist({x:partner.g.position.x,z:partner.g.position.z})<3.0;
+  if(holding){
+   const effort=(forward>0?2.35:0)+(Math.abs(side)>0?3.1:0)-(forward<0?4.4:0);
+   spinVel=clamp(spinVel+dt*effort,0,10);
+   openingAngle+=spinVel*dt;
+   player.x=Math.sin(openingAngle)*.98;player.z=START_Z+Math.cos(openingAngle)*.98;
+   // The partner-facing camera is applied after both dancers move, every frame.
+   if(spinVel>5.85){overspeed+=dt;shake+=dt*.55;
+    if(overspeed>.43&&S.flight){gameOver('fly');return}}
+   else overspeed=Math.max(0,overspeed-dt*.8);
+   if(beat>16){score=Math.max(0,score-37*dt);audienceMood=clamp(audienceMood-.11*dt,-1,1);
+    if(booCooldown<=0&&beat>19)crowdBoo()}
+  }else movePlayer(dt,forward,side);
+ }else if(activeTurn){
+  const t=activeTurn;
+  // Two full beats to ENGAGE. If grabbed early, stay linked but do not turn until beats 3-4 / 7-8.
+  if(beat<t.spinAt){spinVel=Math.max(0,spinVel*.98);player.vx*=.6;player.vz*=.6;}
+  else{
+   // Aim for exactly one half-turn in the two musical beats; movement adds controllable momentum.
+   const effort=(forward>0?.36:0)+(Math.abs(side)>0?1.20:0)-(forward<0?2.0:0);
+   spinVel=clamp(spinVel+dt*(effort-.09),.70,9.5);
+   const rate=spinVel;
+   t.angle+=rate*dt;t.spinAngle+=rate*dt;
+   player.x=t.centerX+Math.sin(t.spinAngle)*t.radius;player.z=t.centerZ+Math.cos(t.spinAngle)*t.radius;
+   if(t.goal.arm==='R'&&spinVel>6.2){overspeed+=dt;
+    if(overspeed>.48&&S.flight){gameOver('fly');return}}
+   else overspeed=Math.max(0,overspeed-dt*.7);
+  }
+  if(beat>t.goal.ideal){score=Math.max(0,score-34*dt);audienceMood-=.12*dt;
+   if(beat>t.goal.ideal+1.8&&booCooldown<=0)crowdBoo()}
+ }else{
+  movePlayer(dt,forward,side);
+  if(grip)attemptGrab();
+  const g=target();if(g){const p=goalPos(g),dist=armDist(p);
+   if(dist>6&&beat>20){player.offSetTime+=dt;if(player.offSetTime>1.4){audienceMood=-.85;combo=0;score=Math.max(0,score-12*dt);
+    if(player.offSetTime>2.5&&booCooldown<=0)crowdBoo()}}
+   else player.offSetTime=Math.max(0,player.offSetTime-dt*.8);
+  }
+ }
+ if(beat>=48){const followerZ=START_Z+ROW_GAP+Math.max(0,beat-48)*ROW_GAP/8;
+  if(player.z-followerZ<1.15&&goalIndex<goals.length){gameOver('catch');return}}
+ if(beat>98&&goalIndex<goals.length){gameOver('catch');return}
+ if(Math.abs(player.x)>8||player.z>16||player.z<-16){player.x=clamp(player.x,-8,8);player.z=clamp(player.z,-16,16);audienceMood=-1;}
+}
+function movePlayer(dt,forward,side){
+ // Local forward is the actual camera forward (-sin(yaw), -cos(yaw)).
+ const len=Math.hypot(forward,side), f=len?forward/len:0, s=len?side/len:0;
+ const dx=-Math.sin(player.yaw)*f+Math.cos(player.yaw)*s;
+ const dz=-Math.cos(player.yaw)*f-Math.sin(player.yaw)*s;
+ const acceleration=31.0,damping=Math.exp(-5.9*dt);
+ player.vx=(player.vx+dx*acceleration*dt)*damping;
+ player.vz=(player.vz+dz*acceleration*dt)*damping;
+ const speed=Math.hypot(player.vx,player.vz),limit=5.25;
+ if(speed>limit){player.vx*=limit/speed;player.vz*=limit/speed}
+ player.x+=player.vx*dt;player.z+=player.vz*dt;
+}
+function updateDancer(n,t,options={}){const run=options.run||0;const phase=t*11+n.phase;const clap=options.clap??(n.kind==='crowd');const mood=options.mood??audienceMood;const wobble=(Math.sin(phase*.68+n.seed)*.10+Math.cos(phase*.41+n.seed)*.07)*S.wobble;
+ n.torso.rotation.z=wobble+(run?Math.sin(phase*.45)*.19:0);n.torso.rotation.x=Math.sin(phase*.39)*.075*S.wobble;n.headG.rotation.z=Math.sin(phase*.51)*.18*S.weird;n.headG.rotation.x=Math.cos(phase*.61)*.09;
+ n.torso.position.y=1.02+Math.abs(Math.sin(phase*.6))*.075;
+ n.legs.forEach((l,i)=>{l.hip.rotation.x=run?Math.sin(phase*1.6+i*Math.PI)*.66:Math.sin(phase*.8+i*Math.PI)*.14;l.hip.rotation.z=Math.sin(phase*.53+i*1.5)*.07;l.knee.rotation.x=run?Math.max(0,Math.sin(phase*1.6+i*Math.PI))*.83:Math.max(0,Math.sin(phase*.6+i*Math.PI))*.18});
+ n.arms.forEach((a,i)=>{if(clap){a.shoulder.rotation.z=a.side*(.8+.35*Math.cos(phase*1.05));a.shoulder.rotation.x=-.83+Math.sin(phase*.95)*.19;a.elbow.rotation.x=-1.05+Math.sin(phase*1.3)*.28;a.elbow.rotation.z=a.side*(.16+.2*Math.cos(phase*1.05));}else{a.shoulder.rotation.z=a.side*(-.19+Math.sin(phase*.46+i*Math.PI)*.3);a.shoulder.rotation.x=-.17+Math.sin(phase*.6+i*3.1)*.39;a.elbow.rotation.x=-.3-Math.abs(Math.sin(phase*.65+i))*.55;}
+  if(options.turnArm && options.turnArm===(i===0?'L':'R')){a.shoulder.rotation.z=a.side*.78;a.shoulder.rotation.x=-.58;a.elbow.rotation.x=-.95;a.elbow.rotation.z=a.side*.17;}
+ });
+ const sadness=n===partner?(options.sad||0):0;const good=clamp(mood-sadness*1.45,-1,1);n.smileG.rotation.z=good>=-.1?0:Math.PI;n.smileG.scale.set(1,good>=-.1?Math.max(.5,.7+good*.32):.9,1);n.mouthO.visible=good<-.6;n.brows[0].rotation.z=-.12-good*.32;n.brows[1].rotation.z=.12+good*.32;n.eyes.forEach((e,i)=>{e.position.y=.11+(good<-.5?-.035:0);e.position.x=(i===0?-.15:.15)+.015*Math.sin(phase*.15)});
+ if(n.knock>0){n.g.rotation.z+=(n.knockVec.x*dtVisual)*1.3;n.g.rotation.x+=(n.knockVec.z*dtVisual)*1.1;n.g.position.y=Math.max(0,n.g.position.y+n.knockVec.y*dtVisual);n.knockVec.y-=9.8*dtVisual;n.knock=Math.max(0,n.knock-dtVisual)}else {n.g.rotation.x=mix(n.g.rotation.x,0,Math.min(1,dtVisual*14));n.g.rotation.z=Math.sin(phase*.37)*.035*S.wobble;}
+}
+// The chasing couple performs the *dance*, not just a forward sliding animation.
+// Eight beats per row: 2 approach line + 2 half-turn + 2 approach partner + 2 partner half-turn.
+function animatePerfectCouple(t,firstSideTurn=false){
+ const a=followers[0],b=followers[1],fb=beat-32,z0=START_Z+ROW_GAP;
+ let sidePerson=null,leftAngle=0,poseA=null,poseB=null;
+ // Always upright: a previous collision must never leave a pursuer prone on restart.
+ a.g.rotation.x=0;a.g.rotation.z=0;a.g.position.y=0;
+ b.g.rotation.x=0;b.g.rotation.z=0;b.g.position.y=0;
+ if(fb<0){
+  const u=smooth((fb+4)/4); // Beat 28-32: move in from the first line to form the next couple.
+  for(const [n,side] of [[a,-1],[b,1]]){
+   if(activeTurn?.goal.person===n || (firstSideTurn&&n===a))continue;
+   const tx=mix(side*LINE_X,side*.89,u),tz=z0;
+   n.g.position.x=mix(n.g.position.x,tx,Math.min(1,dtVisual*6.8));
+   n.g.position.z=mix(n.g.position.z,tz,Math.min(1,dtVisual*6.8));
+   n.g.rotation.y=side===1?-Math.PI/2:Math.PI/2;
+  }
+  if(firstSideTurn&&beat>=18&&beat<20)poseA='L';
+ }else if(fb<16){
+  const ang=-Math.PI/2+fb*Math.PI/2,r=.89;
+  a.g.position.set(Math.sin(ang)*r,0,z0+Math.cos(ang)*r);
+  b.g.position.set(-Math.sin(ang)*r,0,z0-Math.cos(ang)*r);
+  a.g.rotation.y=ang+Math.PI;b.g.rotation.y=ang;poseA='R';poseB='R';
+ }else{
+  const phase=Math.max(0,fb-16);
+  const row=Math.min(ROWS,2+Math.floor(phase/8));
+  const v=clamp(phase-(row-2)*8,0,8),rowZ=START_Z+row*ROW_GAP;
+  const prevZ=START_Z+(row-1)*ROW_GAP;
+  const ax0=row===2?-.89:1.02,az0=row===2?z0:prevZ+.45;
+  const bx0=row===2?.89:-.62,bz0=row===2?z0:prevZ+.45;
+  const sideApproachX=LINE_X-.82,sideApproachZ=rowZ;
+  const rightApproachX=.2-.82,leftApproachBX=.2+.82,partnerZ=rowZ+.45;
+  const lerpPose=(n,x,z,yaw)=>{n.g.position.set(x,0,z);n.g.rotation.y=yaw};
+  if(v<2){
+   // Beats 1-2: the lead pursuer actually TRAVELS to the line; partner travels to rendezvous.
+   const u=smooth(v/2);
+   lerpPose(a,mix(ax0,sideApproachX,u),mix(az0,sideApproachZ,u),-Math.PI/2);
+   lerpPose(b,mix(bx0,leftApproachBX,u),mix(bz0,partnerZ,u),Math.PI/2);
+  }else if(v<4){
+   // Beats 3-4: one 180-degree turn with the opposite line's LEFT elbow.
+   const ang=-Math.PI/2+(v-2)/2*Math.PI;
+   leftAngle=ang;sidePerson=lineNPC.find(n=>n.row===row&&n.side===1)||null;
+   lerpPose(a,LINE_X+Math.sin(ang)*.82,rowZ+Math.cos(ang)*.82,ang+Math.PI);
+   lerpPose(b,leftApproachBX,partnerZ,0);poseA='L';
+  }else if(v<6){
+   // Beats 5-6: lead pursuer heads BACK to its own partner for the right-arm link.
+   const u=smooth((v-4)/2);
+   lerpPose(a,mix(LINE_X+.82,rightApproachX,u),mix(rowZ,partnerZ,u),Math.PI/2);
+   lerpPose(b,leftApproachBX,partnerZ,-Math.PI/2);
+  }else{
+   // Beats 7-8: the pursuing couple turns 180 degrees together, right elbow to right elbow.
+   const ang=-Math.PI/2+(v-6)/2*Math.PI;
+   lerpPose(a,.2+Math.sin(ang)*.82,partnerZ+Math.cos(ang)*.82,ang+Math.PI);
+   lerpPose(b,.2-Math.sin(ang)*.82,partnerZ-Math.cos(ang)*.82,ang);
+   poseA='R';poseB='R';
+  }
+ }
+ updateDancer(a,t,{clap:!poseA,run:poseA?1:.45,mood:1,turnArm:poseA});
+ updateDancer(b,t,{clap:!poseB,run:poseB?1:.45,mood:1,turnArm:poseB});
+ return{sidePerson,leftAngle};
+}
+let dtVisual=.016;
+function animateWorld(dt){dtVisual=dt;const t=seconds;let following=false;
+ // First-person hands react to arm selection, alternating stepping, and spinning.
+ hands.children.forEach((arm,i)=>{const active=grip===(i===0?'L':'R');arm.rotation.x=mix(arm.rotation.x,active?-1.14:.20,Math.min(1,dt*11));arm.rotation.z=mix(arm.rotation.z,active?(i===0?.18:-.18):Math.sin(t*8+i*3.14)*.09,Math.min(1,dt*10));arm.userData.fore.rotation.x=active?-.85:-.22;});
+ const goodMomentum=Math.hypot(player.vx,player.vz);let partnerLate=0;
+ if(goalIndex===-1){
+  if(!openingReleased&&grip==='R'){
+   const a=openingAngle;partner.g.position.x=-Math.sin(a)*.98;
+   partner.g.position.z=START_Z-Math.cos(a)*.98;partner.g.rotation.y=a;
+  }
+  partnerLate=(grip!=='R'&&beat>3)?clamp((beat-3)/10,0,.85):
+   (grip==='R'&&spinVel<1.2&&beat>4?clamp((beat-4)/10,0,.7):0);
+  if(grip==='R'&&spinVel>2.5)partnerLate=0;
+ }else if(beat>=16&&beat<22&&gameMode==='play'&&(!activeTurn||activeTurn.goal.person!==partner)){
+  // Partner B performs the simultaneous first LEFT half-turn with the left-hand
+  // member of the perfect couple, while the player turns the right-hand member.
+  const leftDancer=followers[0],rowZ=START_Z+ROW_GAP,phase=beat-16;
+  const approach=(n,x,z,rate=6.5)=>{const dx=x-n.g.position.x,dz=z-n.g.position.z,d=Math.hypot(dx,dz),step=Math.min(d,rate*dt);if(d>.0001){n.g.position.x+=dx/d*step;n.g.position.z+=dz/d*step}};
+  if(phase<2){approach(partner,-LINE_X+.77,rowZ,6.8);approach(leftDancer,-LINE_X-.77,rowZ,6.2);}
+  else if(phase<4){const a=Math.PI/2+(phase-2)/2*Math.PI;
+   partner.g.position.set(-LINE_X+Math.sin(a)*.77,0,rowZ+Math.cos(a)*.77);
+   leftDancer.g.position.set(-LINE_X-Math.sin(a)*.77,0,rowZ-Math.cos(a)*.77);
+   partner.g.rotation.y=faceYaw(partner.g.position.x,partner.g.position.z,leftDancer.g.position.x,leftDancer.g.position.z);
+   leftDancer.g.rotation.y=faceYaw(leftDancer.g.position.x,leftDancer.g.position.z,partner.g.position.x,partner.g.position.z);
+  }else{approach(partner,-.74,rowZ+ROW_GAP*.49,6.9);approach(leftDancer,-LINE_X,rowZ,6.2);}
+  partnerLate=0;
+ }else if(!activeTurn||activeTurn.goal.person!==partner){
+  // Partner B walks smoothly towards the next right-hand rendezvous, without teleporting.
+  const nextPartner=goals[goalIndex+(goalIndex%2===0?1:0)]||goals[goals.length-1];
+  const tx=-.74,tz=nextPartner.z;
+  const dx=tx-partner.g.position.x,dz=tz-partner.g.position.z,dist=Math.hypot(dx,dz),step=Math.min(dist,5.6*dt);
+  if(dist>.02){partner.g.position.x+=dx/dist*step;partner.g.position.z+=dz/dist*step;
+   partner.g.rotation.y=faceYaw(player.x,player.z,partner.g.position.x,partner.g.position.z)}
+  partnerLate=clamp((beat-nextPartner.ideal+2)/9,0,1);
+ }
+ if(activeTurn){const t=activeTurn,p=t.goal.person;
+  if(p){p.g.position.set(t.centerX-Math.sin(t.spinAngle)*t.radius,0,t.centerZ-Math.cos(t.spinAngle)*t.radius);
+   p.g.rotation.y=Math.atan2(player.x-p.g.position.x,player.z-p.g.position.z);}
+ }
+ if(gameMode==='fly'){flightElapsed+=dt;partner.g.position.x+=dt*(5+spinVel*.5);partner.g.position.z+=dt*2.4;partner.g.position.y=Math.max(.0,5.8*flightElapsed-4.25*flightElapsed*flightElapsed);partner.g.rotation.x+=dt*5;partner.g.rotation.z+=dt*8;}
+ if(gameMode==='catch'){crashElapsed+=dt;const originZ=player.z;followers.forEach((n,i)=>{n.g.position.z=mix(n.g.position.z,originZ+.2+(i?1.2:-.3),Math.min(1,dt*6));n.g.position.x=mix(n.g.position.x,(i?1.0:-.9),Math.min(1,dt*6));});if(crashElapsed>.15&&crashElapsed<.4){for(const n of allNPC){if(Math.hypot(n.g.position.x-player.x,n.g.position.z-player.z)<4&&n.knock===0){n.knock=1.4;n.knockVec.set((n.g.position.x-player.x)*1.6,2.4,(n.g.position.z-player.z)*1.4)}}}}
+ if(gameMode!=='fly')updateDancer(partner,t,{clap:false,run:grip?1:.15,mood:.92,sad:partnerLate});$('partnerMood').textContent=partnerLate>.65?'Heartbroken. You are late.':partnerLate>.28?'Getting very sad waiting...':grip?'Spinning with alarming trust':'Perfectly on time. Waiting.';
+ const perfectDance=gameMode==='catch'?{sidePerson:null,leftAngle:0}:animatePerfectCouple(t,goalIndex>=0&&beat>=16&&beat<22);
+ for(const n of lineNPC){if(n.row===1)continue;const activelyTurning=activeTurn&&activeTurn.goal.person===n;
+  const perfectTurning=perfectDance.sidePerson===n;
+  const clapping=!activelyTurning&&!perfectTurning;
+  let mood=audienceMood;if(Math.abs(player.x)>5.6||player.offSetTime>1.6)mood=-1;
+  updateDancer(n,t,{clap:clapping,run:(activelyTurning||perfectTurning)?1:0,mood,turnArm:perfectTurning?'L':null});
+  if(perfectTurning){const a=perfectDance.leftAngle;const z=START_Z+n.row*ROW_GAP;
+   n.g.position.set(LINE_X-Math.sin(a)*.82,0,z-Math.cos(a)*.82);n.g.rotation.y=a;
+  }else if(!activelyTurning){
+   const z=START_Z+n.row*ROW_GAP,x=n.side*LINE_X;
+   const chasePhase=beat-48;
+   const row=Math.min(ROWS,2+Math.floor(Math.max(0,chasePhase)/8)),within=mod(Math.max(0,chasePhase),8);
+   if(chasePhase>=0&&n.side===1&&n.row===row&&within<2){
+    // The waiting line dancer steps into the elbow link during the two approach beats.
+    n.g.position.set(LINE_X+.82*smooth(within/2),0,z);n.g.rotation.y=-Math.PI/2;
+   }else if(chasePhase>=0&&n.side===1&&n.row===row&&within>=4&&within<6){
+    n.g.position.set(LINE_X-.82*(1-smooth((within-4)/2)),0,z);n.g.rotation.y=-Math.PI/2;
+   }else{
+    n.g.position.x=mix(n.g.position.x,x,Math.min(1,dt*12));n.g.position.z=mix(n.g.position.z,z,Math.min(1,dt*12));n.g.position.y=0;n.g.rotation.y=n.side===1?-Math.PI/2:Math.PI/2;
+   }
+  }
+ }
+ for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.age+=dt;p.mesh.position.addScaledVector(p.vel,dt);p.vel.y-=dt*7;p.mesh.rotation.x+=dt*9;p.mesh.rotation.y+=dt*5;const fade=Math.max(0,1-p.age/1.4);p.mesh.scale.setScalar(fade);if(p.age>1.4){scene.remove(p.mesh);p.mesh.geometry.dispose();particles.splice(i,1)}}
+ if(gameMode==='play'&&goalIndex===-1)goalMarker.visible=false;else if(gameMode==='play'&&target()){const g=target();goalMarker.visible=true;{const p=goalPos(g);goalMarker.position.set(p.x,0,p.z);}markerTorus.rotation.z+=dt*2;diamond.position.y=2.55+Math.sin(t*5)*.25;arrowPoint.material.opacity=.78+.2*Math.sin(t*7);}else goalMarker.visible=false;
+ if(gameMode==='play'&&goalIndex>=0){const g=target();if(g){const p=goalPos(g),diff=p.x-player.x, dz=p.z-player.z;let targetYaw=Math.atan2(diff,dz);let dAng=Math.atan2(Math.sin(targetYaw-player.yaw),Math.cos(targetYaw-player.yaw));$('statusMain').textContent=Math.abs(dAng)<.27?'STRAIGHT AHEAD':dAng>0?'STEER RIGHT →':'← STEER LEFT';}}
+ if(gameMode==='play'){const patience=partnerLate>.4?-.2:0;const lateBy=target()?Math.max(0,beat-target().ideal):goalIndex===-1?Math.max(0,beat-8)*(spinVel<1.4?.09:0):0;audienceMood=mix(audienceMood,clamp(.25+combo*.034-mistakes*.15-lateCount*.05+patience-lateBy*.105,-1,1),Math.min(1,dt*.55));if(lateBy>5&&booCooldown<=0)crowdBoo();}
+ if(['countin','play'].includes(gameMode)){
+  const held=activeTurn?.goal.person||(!openingReleased&&goalIndex===-1&&grip==='R'?partner:null);
+  const focused=held||(goalIndex===-1?partner:target()?.person);
+  const p=held?held.g.position:goalIndex===-1?partner.g.position:goalPos(target());
+  if(p){
+   const desiredYaw=faceYaw(player.x,player.z,p.x,p.z);
+   const delta=Math.atan2(Math.sin(desiredYaw-player.yaw),Math.cos(desiredYaw-player.yaw));
+   // Free travel: smooth cinematic pan; hooked spins: near-instant tracking without losing the face.
+   const rate=held?Math.max(52,spinVel*12):gameMode==='countin'?8.4:6.2;
+   const alpha=1-Math.exp(-rate*dt);
+   player.yaw+=delta*alpha;
+   player.pitch+=(.035-player.pitch)*(1-Math.exp(-5.8*dt));
+   focusTargetName=held?'spinning with':goalIndex===-1?'partner':'next dancer';
+   focusYaw=desiredYaw;
+  }
+ }
+ updateLinkedElbows(t);
+ const bob=(gameMode==='play')?Math.sin(seconds*14)*Math.min(.055,goodMomentum*.008):0;const wobble=Math.sin(seconds*5.9)*S.wobble*.015;const tilt=activeTurn?Math.sin(activeTurn.spinAngle)*.08:goalIndex===-1&&grip==='R'?Math.sin(openingAngle)*.055:0;
+ camera.position.set(player.x,1.72+bob+wobble,player.z);camera.rotation.y=player.yaw;camera.rotation.x=player.pitch+Math.sin(seconds*6)*.01*S.wobble;camera.rotation.z=tilt+(stun>0?Math.sin(seconds*23)*.23:0)+(Math.random()-.5)*shake*.023;
+ if(gameMode==='fly'){camera.rotation.z+=Math.sin(flightElapsed*7)*.27;camera.position.y+=Math.sin(flightElapsed*11)*.14}
+ if(gameMode==='catch'){camera.rotation.z+=Math.sin(crashElapsed*14)*.32;camera.position.y-=Math.min(crashElapsed,1)*1.1}
+ shake*=Math.exp(-5*dt);
+ updateTargetBeacon();
+}
+function updateTargetBeacon(){
+ const el=$('targetBeacon');
+ if(!['countin','play'].includes(gameMode)){el.style.opacity='0';return}
+ let gx,gz,gy=2.3,label='▼ PARTNER B';
+ const next=target();el.classList.toggle('line',goalIndex>=0&&next?.type==='left');if(goalIndex===-1||next?.type==='right'){
+  gx=partner.g.position.x;gz=partner.g.position.z;
+ }else if(next){gx=next.x;gz=next.z;label='▼ LEFT ARM TARGET';}
+ else {el.style.opacity='0';return}
+ const dx=gx-player.x,dz=gz-player.z,angle=faceYaw(player.x,player.z,gx,gz);
+ const delta=Math.atan2(Math.sin(angle-player.yaw),Math.cos(angle-player.yaw));
+ const dist=Math.hypot(dx,dz);
+ // Project to screen in the real Three.js renderer. Fall back safely in the logic test harness.
+ const v=new THREE.Vector3(gx,gy,gz);
+ if(typeof v.project==='function'){
+  camera.updateMatrixWorld?.(true);v.project(camera);
+  let x=(v.x*.5+.5)*gameEl.clientWidth,y=(-v.y*.5+.5)*gameEl.clientHeight;
+  const behind=v.z>1||Math.abs(delta)>Math.PI*.56;
+  if(behind){x=delta>0?92:gameEl.clientWidth-92;y=gameEl.clientHeight*.48;label=(delta>0?'← TURN TO ':'TURN TO → ')+label.replace('▼ ','');}
+  else{x=clamp(x,100,gameEl.clientWidth-100);y=clamp(y,176,gameEl.clientHeight-150);}
+  el.style.left=x+'px';el.style.top=y+'px';
+ }
+ el.style.opacity='1';el.textContent=label+'  '+dist.toFixed(1)+'m';
+}
+function updateHud(){
+ if(gameMode==='menu')return;
+ $('score').textContent=formatScore(score);$('combo').textContent=`×${combo}`;
+ const onFigure=goalIndex>=0;
+ const countLeft=Math.max(1,Math.ceil((startTime-performance.now())/(B*1000)));
+ const figureBeat=onFigure?mod(Math.max(0,beat-16),8):0;
+ const figurePart=onFigure?Math.min(3,Math.floor(figureBeat/2)):0;
+ if(gameMode==='countin'){
+  $('beatLabel').textContent='COUNT-IN';$('beat').textContent=`${String(5-countLeft).padStart(2,'0')} / 04`;
+ }else if(!onFigure){
+  $('beatLabel').textContent='OPENING SPIN';
+  $('beat').textContent=beat<16?`${String(Math.min(16,Math.floor(beat)+1)).padStart(2,'0')} / 16`:`16 / 16${beat>=17?' +':''}`;
+ }else{
+  $('beatLabel').textContent='FIGURE · BEATS';
+  $('beat').textContent=`${String(Math.floor(figureBeat)+1).padStart(2,'0')} / 08`;
+ }
+ $('figureCycle').style.display=gameMode==='play'&&onFigure?'flex':'none';
+ for(let i=0;i<4;i++){$('phase'+i).classList.toggle('current',figurePart===i);$('phase'+i).classList.toggle('done',i<figurePart)}
+ const spinning=gameMode==='play'&&((goalIndex===-1&&grip==='R'&&!openingReleased)||!!activeTurn);
+ $('spinHud').style.display=spinning?'flex':'none';$('spinFill').style.width=(clamp(spinVel/8,0,1)*100)+'%';
+ $('spinValue').textContent=spinVel>5.85?'DANGER!':beat>16&&goalIndex===-1?'OVERTIME!':activeTurn&&beat<activeTurn.spinAt?'ENGAGED · WAIT FOR SPIN':spinVel<1?'BUILD SPEED':spinVel.toFixed(1)+' rad/s';
+ const stepPhase=mod(beat,1);
+ $('timingText').textContent=gameMode==='countin'?'FOUR BEATS · GET READY':gameMode==='play'?(onFigure?['FIND LINE · HOOK Q','LEFT HALF-SPIN · HOLD Q','REJOIN PARTNER · HOOK E','RIGHT HALF-SPIN · HOLD E'][figurePart]:
+  (stepPhase<.16||stepPhase>.84?'ON THE BEAT · SPIN TO 16':'HOLD RIGHT ARM · KEEP THE RHYTHM')):'';
+ const dots=$('beatRail').children;
+ for(let i=0;i<16;i++){
+  dots[i].style.display=onFigure&&i>=8?'none':'';
+  const idx=onFigure?Math.floor(figureBeat):Math.floor(beat);
+  dots[i].classList.toggle('active',gameMode==='play'&&idx===i);
+  dots[i].classList.toggle('good',gameMode==='play'&&i<idx);
+ }
+ const followerZ=followers.reduce((a,n)=>Math.max(a,n.g.position.z),START_Z);
+ const gap=player.z-followerZ;
+ const danger=gameMode==='play'&&beat>=48?clamp(100*(1-(gap-1.3)/12),0,100):beat<48?Math.round(clamp((beat-32)/16,0,1)*25):0;
+ $('chaseFill').style.width=danger+'%';
+ $('followerText').textContent=beat<32?'Waiting. Smugly.':beat<48?'Spinning, flawlessly.':danger>72?'RIGHT BEHIND YOU!':'Catching up...';
+ if(clock>feedbackUntil)$('feedback').classList.remove('shown');
+ drawMap();
+}
+function drawMap(){const c=$('map'),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#0d182d';ctx.fillRect(0,0,w,h);
+ const scale=4.9,mapX=x=>w/2+x*scale,mapZ=z=>13+(z-START_Z)*4.8;
+ ctx.strokeStyle='#63728e60';ctx.lineWidth=2;ctx.beginPath();for(const xx of [-LINE_X,LINE_X]){ctx.moveTo(mapX(xx),11);ctx.lineTo(mapX(xx),h-8)}ctx.stroke();ctx.setLineDash([2,6]);ctx.strokeStyle='#e7bb776b';ctx.beginPath();ctx.moveTo(mapX(0),10);ctx.lineTo(mapX(0),h-7);ctx.stroke();ctx.setLineDash([]);
+ for(const n of lineNPC){if(n.row===1)continue;ctx.beginPath();ctx.fillStyle=audienceMood<-.2?'#fa8699':'#8193b8';ctx.arc(mapX(n.g.position.x),mapZ(n.g.position.z),3.3,0,Math.PI*2);ctx.fill()}
+ const g=target();if(g){ctx.beginPath();ctx.fillStyle='#ffd47c';ctx.arc(mapX(goalPos(g).x),mapZ(goalPos(g).z),6.3,0,Math.PI*2);ctx.fill()}
+ for(const f of followers){ctx.beginPath();ctx.fillStyle='#ff7d94';ctx.arc(mapX(f.g.position.x),mapZ(f.g.position.z),4.4,0,Math.PI*2);ctx.fill()}
+ ctx.beginPath();ctx.fillStyle='#ffe0a2';ctx.arc(mapX(partner.g.position.x),mapZ(partner.g.position.z),4.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.fillStyle='#90efd1';ctx.arc(mapX(player.x),mapZ(player.z),6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();const px=mapX(player.x),py=mapZ(player.z);ctx.strokeStyle='#93edc7';ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+8*Math.sin(player.yaw),py+8*Math.cos(player.yaw));ctx.stroke();
+ ctx.fillStyle='#aebcd3';ctx.font='bold 10px system-ui';ctx.fillText('TOP',w-31,13);ctx.fillText('END',w-31,h-6);
+}
+function render(){const w=gameEl.clientWidth,h=gameEl.clientHeight;if(renderer.domElement.width!==Math.floor(w*renderer.getPixelRatio())||renderer.domElement.height!==Math.floor(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()};renderer.render(scene,camera);
+ if(recorder&&recorder.state==='recording'&&captureCtx){const c=captureCtx.canvas;c.width=1280;c.height=720;captureCtx.fillStyle='#0a1222';captureCtx.fillRect(0,0,1280,720);const rect=renderer.domElement;captureCtx.drawImage(rect,0,0,1280,720);captureCtx.fillStyle='#09182acf';captureCtx.fillRect(20,20,370,89);captureCtx.fillStyle='#ffe2a5';captureCtx.font='900 33px system-ui';captureCtx.fillText('THE CEILIDH INCIDENT',37,58);captureCtx.fillStyle='#fff';captureCtx.font='bold 23px system-ui';captureCtx.fillText(`SCORE ${formatScore(score)}  ·  BEAT ${$('beat').textContent}`,37,88);captureCtx.fillStyle='#09182acf';captureCtx.fillRect(290,655,700,48);captureCtx.font='bold 24px system-ui';captureCtx.fillStyle='#d6f4e3';captureCtx.textAlign='center';captureCtx.fillText($('objT').textContent,640,688);captureCtx.textAlign='left';if(gameMode==='win'&&finalResult){captureCtx.fillStyle='#0c1329d9';captureCtx.fillRect(350,245,590,200);captureCtx.textAlign='center';captureCtx.fillStyle='#ffe0a0';captureCtx.font='900 48px system-ui';captureCtx.fillText(`GRADE ${finalResult.grade}`,640,330);captureCtx.fillStyle='white';captureCtx.font='bold 29px system-ui';captureCtx.fillText(`${formatScore(finalResult.total)} POINTS`,640,385);captureCtx.textAlign='left'}}}
+function loop(now){let dt=Math.min((now-lastTime)/1000,.045);lastTime=now;updateClock(dt);pumpMusic();booCooldown-=dt;cheerCooldown-=dt;
+ if(gameMode==='play')updatePhysics(dt);animateWorld(dt);updateHud();render();
+ if(gameMode==='fly'){flightElapsed+=0;if(flightElapsed>2.05){gameMode='ended';showModal('fail',{title:'PARTNER: AIRBORNE',copy:`${partnerName} achieved a brief and unplanned solo flight. The entire hall gasps. Instructors recommend a little less centrifugal force.`});if(recorder?.state==='recording'){recorder.stop();$('record').textContent='● RECORD RUN'}}}
+ if(gameMode==='catch'){if(crashElapsed>.25)$('flash').style.opacity=Math.max(0,1-(crashElapsed-.25)*3)*.66;if(crashElapsed>1.15)$('fade').style.opacity=clamp((crashElapsed-1.15)*1.65,0,.97);if(crashElapsed>2.3){gameMode='ended';showModal('fail',{title:'HUMAN DOMINOES',copy:'The flawless second couple barrelled straight into you. Down went the dancers, the dignity, and several imaginary furniture items.'});if(recorder?.state==='recording'){recorder.stop();$('record').textContent='● RECORD RUN'}}}
+ requestAnimationFrame(loop)}
+function startRecording(){if(recorder&&recorder.state==='recording'){recorder.stop();$('record').textContent='● RECORD RUN';return}if(!window.MediaRecorder){setFeedback('RECORDING NOT SUPPORTED IN THIS BROWSER',true,1.8);return}captureCanvas=document.createElement('canvas');captureCanvas.width=1280;captureCanvas.height=720;captureCtx=captureCanvas.getContext('2d');captureStream=captureCanvas.captureStream(30);if(mediaDest&&!muted){for(const track of mediaDest.stream.getAudioTracks())captureStream.addTrack(track)}const type=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'].find(s=>MediaRecorder.isTypeSupported(s))||'';try{recorder=new MediaRecorder(captureStream,type?{mimeType:type,videoBitsPerSecond:4500000}:{videoBitsPerSecond:4500000});recordChunks=[];recorder.ondataavailable=e=>{if(e.data.size)recordChunks.push(e.data)};recorder.onstop=()=>{const kind=recorder.mimeType.includes('mp4')?'mp4':'webm';const blob=new Blob(recordChunks,{type:recorder.mimeType||'video/webm'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`ceilidh-incident-run.${kind}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),20000);captureStream?.getTracks().forEach(t=>t.stop())};recorder.start(1000);$('record').textContent='■ STOP RECORDING';setFeedback('RECORDING YOUR RUN',false,1.1)}catch(e){setFeedback('RECORDING UNAVAILABLE',true,2)}}
+for(let i=0;i<16;i++){const d=document.createElement('div');d.className='beatDot';$('beatRail').append(d)}
+$('trackInput').addEventListener('change',e=>{loadCustomMusic(e.target.files?.[0]);e.target.value=''});$('pickMusic').addEventListener('click',()=>$('trackInput').click());
+$('mute').addEventListener('click',()=>{muted=!muted;$('mute').textContent=muted?'♫ SOUND OFF':'♫ SOUND ON';if(!muted)initAudio();if(master)master.gain.value=muted?0:.68;if(customAudio&&gameMode==='play'&&!customAudio.paused&&muted){}else if(customAudio&&gameMode==='play'&&!muted)startCustomMusic()});$('record').addEventListener('click',startRecording);$('help').addEventListener('click',()=>{if(gameMode==='play'){gameMode='paused';customAudio?.pause();$('modalContent').innerHTML=`<div class="eyebrow">CEILIDH EMERGENCY BRIEFING</div><h1>PAUSED</h1><p>Keep Partner B intact. HOLD E for RIGHT elbow, HOLD Q for LEFT elbow. RELEASE to finish the half-turn. Use ↑ ↓ ← → to travel; the camera automatically faces your partner when spinning or pans to the next target. After the 16-beat opening, each 8-beat figure is: 2 to ENGAGE LINE, 2 for LEFT half-turn, 2 to ENGAGE PARTNER, 2 for RIGHT half-turn. Green = partner; gold = line dancer.</p><p><b>Score:</b> on-beat steps and turns earn points. Finishing close to beat 56 earns a timing bonus. Couple 2 enters on beat 33 and follows down from beat 49.</p><button id="resumeBtn" class="cta">▶ RESUME THE JIG</button>`;$('overlay').classList.remove('hidden');$('resumeBtn').addEventListener('click',()=>{startTime=performance.now()-seconds*1000;gameMode='play';startCustomMusic();$('overlay').classList.add('hidden')});}else if(gameMode==='menu')showModal('menu');});
+for(const [id,arm] of [['armL','L'],['armR','R']]){
+ const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();setGrip(arm);b.classList.add('pressed');try{b.setPointerCapture(e.pointerId)}catch(err){}});
+ for(const kind of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(kind,()=>{releaseArm(arm);b.classList.remove('pressed')});
+}
+for(const [id,direction] of [['moveUp','up'],['moveDown','down'],['moveLeft','left'],['moveRight','right']]){
+ const b=$(id);
+ b.addEventListener('pointerdown',e=>{e.preventDefault();moveHeld[direction]=true;b.classList.add('pressed');b.setPointerCapture(e.pointerId)});
+ for(const name of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(name,()=>{moveHeld[direction]=false;b.classList.remove('pressed')});
+}
+const keyDirections={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'};
+window.addEventListener('keydown',e=>{
+ if(keyDirections[e.code]||e.code==='Space')e.preventDefault();
+ if(gameMode==='menu'&&e.code==='Space'){$('startBtn')?.click();return}
+ if(keyDirections[e.code]){moveHeld[keyDirections[e.code]]=true;return}
+ if(e.repeat)return;
+ switch(e.code){case 'KeyQ':setGrip('L');break;case 'KeyE':setGrip('R');break;case 'KeyR':if(gameMode==='ended'||gameMode==='win')reset();break;}
+});
+window.addEventListener('keyup',e=>{const d=keyDirections[e.code];if(d)moveHeld[d]=false;if(e.code==='KeyQ')releaseArm('L');if(e.code==='KeyE')releaseArm('R')});
+const canvas=renderer.domElement;
+// Movement is always directional; no pointer lock, mouse aim, or accidental camera overrides.
+window.addEventListener('blur',()=>{for(const d of Object.keys(moveHeld))moveHeld[d]=false;if(grip)releaseArm(grip)});
+// Starting scene is an actual 3D environment, visible through the introduction.
+loadBundledMusic();showModal('menu');lastTime=performance.now();requestAnimationFrame(loop);
+window.__ceilidhDebug={getState:()=>({gameMode,beat,score,combo,goalIndex,player:{...player},spinVel,grip,openingReleased,turnAngle:activeTurn?.angle??null,turnSpinAt:activeTurn?.spinAt??null,figurePhase:goalIndex>=0?Math.floor(mod(beat-16,8)/2):null,focusTarget:focusTargetName,linkVisible:playerLink.rig.visible,partner:partnerName,move:{...moveHeld},partnerPos:{x:partner.g.position.x,z:partner.g.position.z},followerPos:followers.map(n=>({x:n.g.position.x,z:n.g.position.z})),music:{custom:!!customAudio,name:customTrackName,bpm:BPM,playing:!!customAudio&&!customAudio.paused},leaderboard:{github:GH_REPO,configured:GH_ENABLED,submitted:lbSubmitted,pendingUrl:lbPendingUrl}}),reset,foot,selectArm,advance:(b)=>{if(gameMode!=='play')return;startTime=performance.now()-b*B*1000;}};
+</script>
+<script>setTimeout(()=>{if(!window.__ceilidhDebug){document.getElementById("loadError").style.display="flex"}},12000);</script>
+</body>
+</html>
