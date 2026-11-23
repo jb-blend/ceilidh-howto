@@ -18,25 +18,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
+    name: Build and upload game site
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - name: Checkout the game
         uses: actions/checkout@v4
+
       - name: Build leaderboard from score Issues
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python3 scripts/build_leaderboard.py
-      - name: Configure Pages
+
+      - name: Confirm website files exist
+        run: |
+          test -f site/index.html
+          test -f site/settings.js
+          test -f site/leaderboard.json
+          echo "Website files are ready to upload"
+
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+
       - name: Upload game site
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: site
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Publish to GitHub Pages
-        id: deploy
+        id: deployment
         uses: actions/deploy-pages@v4
