@@ -1,0 +1,232 @@
+key,text
+brand.eyebrow,12 DAIys of Christmas
+brand.title,MY FIRST
+brand.accent,CEILIDH
+brand.subtitle,ORCADIAN STRIP THE WILLOW · FIRST PERSON
+hud.score,SCORE
+hud.combo,COMBO
+hud.beat,BEATS
+hud.opening,OPENING SPIN
+hud.figure,FIGURE · BEATS
+hud.countin,COUNT-IN
+hud.partner,PARTNER B
+hud.pursuit,THE PURSUIT
+hud.mapLegend,Mint = you · Gold = next target · Red = chasing couple
+hud.controlsTitle,HOW TO MOVE
+hud.move,Arrows move you; left/right give a bigger spin boost.
+hud.camera,Camera follows the next person automatically
+hud.arms,Q = left · E = right · Q+E = opening spin
+hud.phase1,1–3 · LEFT-ARM SPIN
+hud.phase2,4 · TRAVEL TO PARTNER
+hud.phase3,5–7 · RIGHT-ARM SPIN
+hud.phase4,8 · TRAVEL TO LINE
+hud.leftArm,LEFT ARM
+hud.leftHint,HOLD Q · line
+hud.rightArm,RIGHT ARM
+hud.rightHint,HOLD E · partner
+hud.bothArm,BOTH ARMS
+hud.bothHint,Q + E · opening
+hud.timeline,FIND THE BEAT
+hud.spinMomentum,SPIN SPEED
+hud.spinReady,READY
+hud.targetPartner,▼ PARTNER B
+hud.targetLine,▼ LEFT ARM TARGET
+hud.trackingTitle,NEXT MOVE
+hud.trackingDetail,3 beats spinning · 1 beat moving · grab the next dancer on the four-beat cue
+hud.banner,Camera follows the target. Grab every four beats; spend three spinning and the fourth travelling.
+hud.audioOn,♫ SOUND ON
+hud.audioOff,♫ SOUND OFF
+hud.defaultMusic,BUNDLED SOUNDTRACK
+hud.help,? RULES
+hud.readyPrompt,4 BEATS TO START · FACE PARTNER B · HOLD Q + E ON GO
+hud.startKicker,READY TO DANCE
+hud.startTitle,Try not to drop anybody.
+hud.startDesc,Opening: both arms. Line: left arm. Partner: right arm.
+hud.partnerDefault,A suspiciously competent stranger
+hud.partnerWaiting,Waiting for the first beat
+hud.pursuerDefault,Couple 2 is ready
+world.band,THE BAND
+world.partnerLabel,▼ PARTNER B ▼
+world.perfectLabel,PERFECT COUPLE
+world.grabLabel,YOUR NEXT DANCER
+world.top,TOP
+world.end,END
+menu.eyebrow,12 DAIys of Christmas · game preview
+menu.titleTop,MY FIRST
+menu.titleBottom,CEILIDH
+menu.intro,"A ceilidh is simple: hold on, keep up, and try not to launch anyone."
+menu.rule1Title,THE OPENING SPIN · 16 BEATS
+menu.rule1Body,"The music starts with your 16- or 32-beat count-in. On GO, hold Q + E to spin together for up to 16 beats. Release a little early if you need to: the first outside dancer must be grabbed ON spin beat 16. The longer you safely spin, the more you score. ←/→ accelerate more than ↑; ↓ brakes."
+menu.rule2Title,DOWN THE LINE
+menu.rule2Body,Hold Q for a left-arm turn with the next line dancer; hold E for a right-arm turn with Partner B. Release to end each turn.
+menu.rule3Title,MOVE
+menu.rule3Body,"Use arrow keys to move. During a spin, left and right arrows affect spin speed more strongly than up and down. Your view follows the next dancer, but you must walk there yourself."
+menu.rule4Title,RHYTHM
+menu.rule4Body,"Every four beats, start a new turn: spin for three beats, then release and use the fourth beat to travel. A release anywhere in that final beat is fine — grab the next dancer right on the beat for the biggest bonus."
+menu.tip,Points favour precise on-beat grabs and controlled half-spins. Moving alone earns nothing; releases between beats 3 and 4 are fine. Watch the pursuing couple!
+menu.openingSetting,Count-in length
+menu.opening16,16 beats
+menu.opening32,32 beats
+menu.countinNote,"The music starts with one unnumbered lead-in beat, followed by your 16/32-beat count-in. Opening spin: 16 beats. First outside grab: spin beat 16."
+spin.prep,GET TO THE FIRST LINE
+hud.prep,GET READY · FIRST LINE
+event.onTimeGrab,ON THE BEAT! BIG BONUS LOADING
+event.turnDone,TURN COMPLETE
+menu.quickMove,Move to the next dancer + control spin speed
+menu.quickOpening,After the count-in: spin together for 16 beats
+menu.quickTurns,Q for the line · E for your partner · new grab every 4 beats
+menu.quickWarning,"Spin safely, but leave time to reach the first outside dancer on spin beat 16. The next grab matters most. After that: three beats spinning, one beat moving."
+menu.howToPlay,How to play · full instructions
+menu.sound,Music and sound effects
+menu.desktop,Keyboard recommended
+menu.start,START DANCING
+menu.leaderboard,VIEW LEADERBOARD
+pause.eyebrow,TAKE A MOMENT
+pause.title,PAUSED
+pause.rules,"Choose a 16- or 32-beat count-in, then spin with Q + E for up to 16 beats. Release with time to grab the first outside dancer ON beat 16. After that, use Q for the outside dancer and E for your partner. Each grab is four beats apart: three spinning, one travelling. ←/→ accelerate more than ↑; ↓ brakes."
+pause.scoring,"Big points for grabbing exactly on the beat and completing a strong, controlled spin. Release freely during the fourth beat. Spin too fast and any dancer can be launched."
+pause.resume,▶ RESUME
+result.winEyebrow,YOU REACHED THE END
+result.winTitle,BOTTOM OF THE LINE
+result.dnfEyebrow,THE DANCE GOES ON WITHOUT YOU
+result.dnfTitle,DID NOT FINISH
+result.dnfCopy,"You did not reach the end, but your points still count. Submit a DNF score if you like."
+result.gradeLabel,GRADE
+result.pointsLabel,POINTS
+result.precisionLabel,BEAT ACCURACY
+result.finishDetails,Finish bonus: +{finish} · Clean turns: {clean}/11 · Errors: {errors} · Finished at beat {beat} (target {target}).
+result.dnfDetails,DNF · Reached beat {beat} · Clean turns: {clean}/11 · Errors: {errors}. No finish bonus.
+result.quoteS,Perfect - consider yourself a Scot
+result.quoteA,"Congratulations, you're now in the leadership team"
+result.quoteB,A perfectly cromulent ceilidh
+result.quoteC,"You got there, that's what counts"
+result.quoteD,Please do better than this on the night
+result.submitHeader,🏆 POST YOUR SCORE
+result.submitDescription,Enter a nickname. No login required. Scores and nicknames are public.
+result.nickname,Your dancing name
+result.submit,SUBMIT SCORE
+result.saving,SAVING…
+result.submitted,✓ SUBMITTED
+result.board,↻ REFRESH SCORES
+result.retry,↻ DANCE AGAIN · NEW PARTNER
+result.leaderboard,🏆 LEADERBOARD
+result.online,Ready to submit to the shared leaderboard.
+result.local,Local practice scores only. Add the leaderboard API to settings.js to share.
+board.eyebrow,THE RANKINGS
+board.title,LEADERBOARD
+board.intro,Highest score per nickname. A DNF tag means the dancer did not make it to the end.
+board.refresh,↻ REFRESH SCORES
+board.backResults,← BACK TO RESULTS
+board.backGame,← BACK TO GAME
+board.rank,RANK
+board.dancer,DANCER
+board.grade,RESULT
+board.points,POINTS
+board.empty,No scores yet - you're the first one here!
+board.loading,Loading scores…
+board.live,LIVE SHARED SCORES · no sign-in
+board.local,LOCAL PRACTICE SCORES · not shared
+board.error,Leaderboard unavailable: {error}
+board.tryAgain,No online scores loaded. Try refreshing.
+board.inputError,Enter a nickname between 2 and 32 characters.
+board.invalidResponse,Leaderboard returned an invalid response.
+board.unavailable,The leaderboard is temporarily unavailable.
+board.saved,Score posted. You are on the leaderboard.
+board.notImproved,Submitted. Your higher previous score is still on the board.
+board.savedLocal,Saved on this device only.
+board.failed,Score not submitted: {error}. Try again.
+board.alreadySent,Score sent to the shared leaderboard.
+board.alreadyLocal,Saved in this browser only.
+event.earlyRelease,LET GO EARLY · −{points}
+event.openingDone,OPENING RELEASED · +{points} · REACH THE LINE BY BEAT 16
+event.openingMissed,OPENING SPIN MISSED
+event.openingSoon,BEAT 16: GRAB THE OUTSIDE DANCER. LEAVE TIME TO TRAVEL!
+event.openingExit,BEAT 16 — OUTSIDE GRAB DUE! RELEASE TO MOVE
+event.started,GO! BOTH ARMS · 16-BEAT OPENING
+event.leaveSpin,GOOD · FIND THE LINE
+event.wrongArm,WRONG ARM · −82
+event.leftLinked,LEFT ARM LINKED
+event.rightLinked,RIGHT ARM LINKED
+event.barelyTurned,NOT MUCH OF A TURN
+event.perfectTurn,PERFECT HALF-TURN
+event.goodTurn,GOOD TURN
+event.overTimeTurn,OVERTIME
+event.wobblyTurn,WOBBLY BUT IT COUNTS
+event.finished,BOTTOM OF THE LINE
+event.launch,{name} HAS LEFT THE DANCE FLOOR
+event.collision,THE CHASING COUPLE GOT YOU
+event.couple2Spin,COUPLE 2 STARTS SPINNING
+event.couple2Chase,COUPLE 2 IS COMING
+event.boo,PEOPLE ARE BOOING YOU
+event.twoLeftFeet,TWO LEFT FEET
+event.onBeat,ON THE BEAT +24
+tip.slowLine,Spinning too slowly? Hold ↑ while linked. Add ← or → for more momentum — but watch the red speed zone!
+objective.countK,{count}-BEAT COUNT-IN
+objective.countT,READY · {count} TO GO
+objective.countD,"The music is already playing. On GO, hold Q + E to spin Partner B. Opening spin is always 16 beats; first outside grab is due on beat 16."
+objective.openK,OPENING SPIN · {beats} BEATS
+objective.openT,HOLD Q + E · BOTH ARMS
+objective.openD,Both arms. ←/→ speed up more than ↑; ↓ brakes. You may release early to reach the outside dancer by beat 16.
+objective.openSoonK,BEAT 16 IS COMING
+objective.openSoonT,RELEASE · REACH THE OUTSIDE DANCER
+objective.openSoonD,The first outside grab earns maximum timing points on beat 16. The spin can finish early; move yourself to the dancer.
+objective.openOverK,BEAT {beats}
+objective.openOverT,OUTSIDE GRAB DUE NOW · RELEASE
+objective.openOverD,The line turn was due on beat 16. Release and reach the next dancer; holding on loses points.
+objective.lineK,NEXT: FIRST OUTSIDE DANCER
+objective.lineT,LEFT ARM · Q · GRAB ON BEAT 16
+objective.lineD,Move into the line now. First outside grab is due on beat 16 (not beat 20). You can release the opening spin early to make it.
+objective.figureK,FIGURE {figure} · TURN {turn}/{total}
+objective.figureLineT,FIND LINE DANCER {row} · Q
+objective.figurePartnerT,MEET {name} · E
+objective.figureLineD,"Grab the outside dancer on the next four-beat cue. Hold Q to spin, then move during beat four."
+objective.figurePartnerD,"Meet in the middle. Grab Partner B on the next four-beat cue, then spin for three beats."
+status.ahead,STRAIGHT AHEAD
+status.right,STEER RIGHT →
+status.left,← STEER LEFT
+status.sad,Your partner looks very sad
+status.getSad,Your partner is waiting…
+status.spinning,Spinning together
+status.waiting,Waiting on you
+status.followWait,Waiting behind you
+status.followSpin,Spinning perfectly
+status.followDanger,RIGHT BEHIND YOU
+status.followClose,Getting closer
+spin.danger,DANGER!
+spin.overtime,OVERTIME!
+spin.engage,SPIN NOW
+spin.build,BUILD SPEED
+spin.phase1,SPIN LEFT · 3 BEATS
+spin.phase2,RELEASE · MOVE
+spin.phase3,SPIN RIGHT · 3 BEATS
+spin.phase4,RELEASE · MOVE
+spin.onBeat,OPENING · NEXT GRAB ON BEAT {beats}
+spin.hold,HOLD BOTH ARMS
+spin.openingSoon,OUTSIDE GRAB ON BEAT 16 — RELEASE AND MOVE
+spin.ready,COUNTING IN — SPIN STARTS ON GO
+music.pressSound,ENABLE SOUND TO HEAR YOUR TRACK
+music.noTrack,SOUNDTRACK UNAVAILABLE
+music.noBundled,No soundtrack loaded
+music.loading,Loading {name}…
+music.ready,Soundtrack ready: {name}. Click Test music to check the file.
+music.noConfigured,No soundtrack configured. Add an MP3 in assets and set musicFile in settings.js.
+music.loadError,Could not load {path}: {reason}. Check the exact file name and that it is a playable MP3. The old synth music will not play instead.
+music.blocked,"Music could not play: {reason}. Check Sound On or press Test music on the menu, then start again."
+music.testButton,▶ Test music
+music.stopButton,■ Stop music
+error.loadTitle,The 3D engine could not load
+error.loadBody,Connect to the internet and open the game in a modern desktop browser.
+hud.endRun,END RUN
+result.quitConfirm,End this run and keep your score as DNF?
+page.title,MY FIRST CEILIDH V2.7 — 12 DAIys of Christmas
+a11y.map,Overhead map of dancer positions
+a11y.direction,Directional movement
+a11y.forward,Move forward
+a11y.left,Strafe left
+a11y.backward,Move back
+a11y.right,Strafe right
+a11y.holdLeft,Hold left elbow grab
+a11y.holdRight,Hold right elbow grab
+a11y.holdBoth,Hold both arms for opening spin
+a11y.endRun,Finish your run and submit DNF
+a11y.nickname,Leaderboard nickname
