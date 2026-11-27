@@ -5,6 +5,7 @@ window.CEILIDH_CONFIG = {
   // Until that file exists, the built-in instrumental jig is used.
   musicFile: 'assets/ceilidh-track.mp3',
   bpm: 135, // REPLACE with your recording's true BPM.
+  countInBeats: 16,
   // To publish scores via GitHub Issues, set publicRepo to "OWNER/REPO".
   // Example: 'your-team/the-ceilidh-incident'. Leave empty for local-only scores.
   leaderboardApi: 'https://ceilidh-leaderboard.jake-barrett.workers.dev',
